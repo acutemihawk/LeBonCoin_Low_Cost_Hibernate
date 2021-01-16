@@ -3,6 +3,10 @@ package controller;
 import java.sql.*;
 import java.util.ArrayList;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import model.Offer;
 
 // TODO: Auto-generated Javadoc
@@ -11,6 +15,18 @@ import model.Offer;
  */
 public class OfferDAO
 {
+	
+	private EntityManager em;
+	private EntityManagerFactory emf;
+	
+	/**
+	 * Instantiates a new user DAO.
+	 */
+	public OfferDAO()
+	{
+		emf  = Persistence.createEntityManagerFactory("Test");
+        em = emf.createEntityManager() ;
+	}
 	
 	/**
 	 * Insert an offer .

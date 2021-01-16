@@ -7,7 +7,7 @@ import model.*;
 // TODO: Auto-generated Javadoc
 /**
  * The Class MainController.
- */
+ */ 
 public class MainController 
 {
 	
@@ -60,8 +60,8 @@ public class MainController
 			myUser.setUsername(username);
 			myUser.setPassword(password);
 			myUser.setIdUser(myUserDAO.getUserId(myUser));
-			myUser.setListAdvertisment(myUserDAO.getUserListAdv(myUser));
-			myUser.setListOffer(myUserDAO.getUserListPropositions(myUser));
+			//myUser.setListAdvertisment(myUserDAO.getUserListAdv(myUser));
+			//myUser.setListOffer(myUserDAO.getUserListPropositions(myUser));
 			myUser.setMail(myUserDAO.getUserMail(myUser));
 			myUser.setConnected(true);
 			myBdd.disconnect();
@@ -138,7 +138,7 @@ public class MainController
 		if (myAdvDAO.insertAd(myAdv) == true)
 		{
 			myAdv.setIdAdvertisment(myAdvDAO.getLastID()); 
-			myUser.getListAdvertisment().add((int) myAdv.getIdAdvertisment());
+			//myUser.getListAdvertisment().add((int) myAdv.getIdAdvertisment());
 			System.out.println("Advertisment successfully created");
 			return true;
 		}
@@ -202,7 +202,7 @@ public class MainController
 		if(myOfDAO.insertInformation(Offer) == true) 
 		{
 			Offer.setIdOffer(myOfDAO.getLastOfferID());
-			myUser.getListOffer().add((int) Offer.getIdOffer());
+			//myUser.getListOffer().add((int) Offer.getIdOffer());
 			myOfDAO.insertOf(Offer);
 			
 			System.out.println("Offer successfully created !");
@@ -227,7 +227,7 @@ public class MainController
         offerToDel.setIdOffer(idOffer);
         if(myOfDAO.deleteOf(offerToDel) == true)
         {
-            for (Integer loop : myUser.getListOffer())
+           /* for (Integer loop : myUser.getListOffer())
             {
                 if (loop ==offerToDel.getIdOffer())
                 {    
@@ -236,7 +236,7 @@ public class MainController
                 }
                 else
                     return false;
-            }
+            }*/
         }
         return false;
     }
@@ -255,7 +255,7 @@ public class MainController
 		
 		myOffer.setIdOffer(idOffer);
 		
-		for (Integer loop : myUser.getListAdvertisment() )
+		/*for (Integer loop : myUser.getListAdvertisment() )
 		{
 			if(loop == (myOfDAO.getAdvID(myOffer)))
 			{
@@ -264,7 +264,7 @@ public class MainController
 				myOffer.setIdAdvertisment(myOfDAO.getAdvID(myOffer));
 				return myOfDAO.deleteAllOffer(myOffer) && myAdvDAO.deleteAd(advToDel);
 			}
-		}
+		}*/
 		System.out.println("Please accept an offer that is addressed to you ");
 		return false;	
 }
@@ -284,13 +284,13 @@ public class MainController
 		offerToDel.setIdOffer(idOffer);
 		offerToDel.setIdBuyer(myOfDAO.getUserID(offerToDel));
 
-		for (Integer loop : myUser.getListAdvertisment() )
+		/*for (Integer loop : myUser.getListAdvertisment() )
 		{
 			if(loop == (myOfDAO.getAdvID(offerToDel)))
 			{
 				return myOfDAO.deleteOf(offerToDel);
 			}
-		}
+		}*/
 		
 		System.out.println("Please accept an offer that is addressed to you ");
 		return false;
@@ -308,14 +308,14 @@ public class MainController
 		
 		ArrayList<Offer> myArrayToReturn = new ArrayList<Offer>();
 		
-		for (int tmp : myUser.getListOffer())
+		/*for (int tmp : myUser.getListOffer())
 		{
 			Offer Of = new Offer();
 			Of.setIdOffer(tmp);
 			Of.setIdAdvertisment(myOfDAO.getAdvID(Of));
 			Of.setNewPrice(myOfDAO.getNewPrice(Of));
 			myArrayToReturn.add(Of);
-		}
+		}*/
 		return myArrayToReturn;
 	}
 	
@@ -332,7 +332,7 @@ public class MainController
 		
 		ArrayList<Offer> myArrayToReturn = new ArrayList<Offer>();
 		
-		for (int loop : myUserDAO.getUserListOffer(myUser))
+		/*for (int loop : myUserDAO.getUserListOffer(myUser))
 		{
 			Offer myOf = new Offer();
 			myOf.setIdOffer(loop);
@@ -340,7 +340,7 @@ public class MainController
 			myOf.setNewPrice(myOfDAO.getNewPrice(myOf));
 			myOf.setIdBuyer(myOfDAO.getUserID(myOf));
 			myArrayToReturn.add(myOf);
-		}
+		}*/
 		return myArrayToReturn;
 	}
 	

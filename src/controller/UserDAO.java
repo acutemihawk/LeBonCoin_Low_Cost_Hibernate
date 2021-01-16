@@ -1,7 +1,11 @@
 package controller;
+
 import java.sql.*;
 import model.*;
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.*;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -9,86 +13,67 @@ import java.util.ArrayList;
  */
 public class UserDAO 
 {
-	
+	private EntityManager em;
+	private EntityManagerFactory emf;
 	/**
 	 * Instantiates a new user DAO.
 	 */
 	public UserDAO()
 	{
-		
+		emf  = Persistence.createEntityManagerFactory("Test");
+        em = emf.createEntityManager() ;
 	}
-	
+
 	/**
 	 * Gets the id of the User in parameters
 	 *
 	 * @param myUser 
 	 * @return user id
 	 */
-	public int getUserId(User myUser)
+	public long getUserId(User myUser)
 	{
-		Database myBdd = new Database();
-		Connection myConnection = myBdd.connect();
-		int id = -1;
+		long id = -1;		
 		
 		try
 		{
-			String SQL = " SELECT iduser FROM USER WHERE username = ?";
-			
-			PreparedStatement myStatement = myConnection.prepareStatement(SQL);
-			myStatement.setString(1, myUser.getUsername());
-			ResultSet rs  = myStatement.executeQuery();
-			
-			if(rs.next() != false)
-			{
-				 id = rs.getInt(1);
-			}
-			myStatement.close();
-			myBdd.disconnect();
+			id = (long) emf.getPersistenceUnitUtil().getIdentifier(myUser);
 			return id;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e) 
 		{
 			System.out.println(e.getMessage());
-			myBdd.disconnect();
 			return -1;
 		}
-		
 	}
+	
+
 	
 	/**
 	 * Gets the username of the User in parameters
 	 *
 	 * @param myUser 
 	 * @return username
+	 * @throws Exception 
 	 */
 	public String getUserName(User myUser)
     {
-        Database myBdd = new Database();
-        Connection myConnection = myBdd.connect();
         String name = "";
         
         try
         {
-            String SQL = " SELECT username FROM USER WHERE iduser = ?";
-            
-            PreparedStatement myStatement = myConnection.prepareStatement(SQL);
-            myStatement.setLong(1, myUser.getIdUser());
-            ResultSet rs  = myStatement.executeQuery();
-            
-            if(rs.next() != false)
-            {
-                name = rs.getString(1);
-            }
-            myStatement.close();
-            myBdd.disconnect();
+        	User userTmp = em.find(User.class, myUser.getIdUser());
+        	if(userTmp != null)
+        	{
+        		return userTmp.getUsername();
+        	}
+    		System.out.println("could not get Username");
+    		return name;      
+        }
+		catch (PersistenceException e) 
+		{
+            System.out.println(e.getMessage());
             return name;
         }
-        catch (SQLException e) 
-        {
-            System.out.println(e.getMessage());
-            myBdd.disconnect();
-            return name;
-        }    
     }
 	
 	/**
@@ -97,32 +82,26 @@ public class UserDAO
 	 * @param myUser 
 	 * @return a list of Advertisment
 	 */
-	public ArrayList<Integer> getUserListAdv(User myUser)
+	public List<Advertisment> getUserListAdv(User myUser)
 	{
-		Database myBdd = new Database();
-		Connection myConnection = myBdd.connect();
-		ArrayList<Integer> myList = new ArrayList<Integer>();
+
+		List<Advertisment> myList = new ArrayList<Advertisment>();
 		
 		try
 		{
-			String SQL = " SELECT idAdvertisment FROM ADVERTISMENT WHERE iduser=?";
-			PreparedStatement myStatement = myConnection.prepareStatement(SQL);
-			myStatement.setLong(1, myUser.getIdUser());
-			ResultSet rs  = myStatement.executeQuery();
+			User userTmp = em.find(User.class, myUser.getIdUser());
 			
-			while(rs.next())
-			{
-				myList.add(rs.getInt(1));
-			}
-			myStatement.close();
-			myBdd.disconnect();
-			return myList;
-
+        	if(userTmp != null)
+        	{
+        		return userTmp.getListAdvertisment();
+        	}
+        	
+     		System.out.println("could not get User List Advertisment");
+     		return null;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e) 
 		{
 			System.out.println(e.getMessage());
-			myBdd.disconnect();
 			return myList;
 		}
 	}
@@ -133,37 +112,35 @@ public class UserDAO
 	 * @param myUser 
 	 * @return the user list offer
 	 */
-	public ArrayList<Integer> getUserListOffer(User myUser)
-	{
-		Database myBdd = new Database();
-		Connection myConnection = myBdd.connect();
-		ArrayList<Integer> myList = new ArrayList<Integer>();
-		try
+	public List<Offer> getUserListOffer(User myUser)
+	{	
+		
+		List<Offer> resultList = new ArrayList<Offer>();
+		long tmp = myUser.getIdUser();
+		String SQL = "SELECT DISTINCT Offer FROM Advertisment a INNER JOIN a.idAdvertisment Offer where a.owner=tmp";
+		Query query = em.createQuery(SQL);
+		resultList = query.getResultList();
+		return resultList;
+		
+		/*List<Offer> myList1 = new ArrayList<Offer>();
+		
+		User userTmp = em.find(User.class, myUser.getIdUser());
+		
+		for (int i = 0; i < userTmp.getListAdvertisment().size(); i++)
 		{
+			for (int j = 0; j < userTmp.getListAdvertisment().get(i).getListMyOffer().size(); j++)
+			{
+				myList1.add(userTmp.getListAdvertisment().get(i).getListMyOffer().get(j));
+			}
+		}
+		return myList1;*/
+		
+		/*
 			String SQL = "SELECT offer.idoffer FROM advertisment "
 					+ "INNER JOIN OFFER ON advertisment.idAdvertisment= offer.idAdvertisment "
 					+ "INNER JOIN offerinfo USING(idoffer)"
 					+ " WHERE advertisment.iduser= ?"; 
-			
-			PreparedStatement myStatement = myConnection.prepareStatement(SQL);
-			myStatement.setLong(1, myUser.getIdUser());
-			ResultSet rs  = myStatement.executeQuery();
-			
-			while(rs.next())
-			{
-				myList.add((int) rs.getLong(1));
-			}
-			
-			myStatement.close();
-			myBdd.disconnect();
-			return myList;
-		}
-		catch (SQLException e) 
-		{
-			System.out.println(e.getMessage());
-			myBdd.disconnect();
-			return myList;
-		}
+
 	}
 	
 	/**
@@ -173,31 +150,23 @@ public class UserDAO
 	 * @return the user list propositions
 	 */
 	/* renvoie la liste des propositions faites par l'utilisateur passé en parametre */
-	public ArrayList<Integer> getUserListPropositions(User myUser)
+	public List<Offer> getUserListPropositions(User myUser)
 	{
-		Database myBdd = new Database();
-		Connection myConnection = myBdd.connect();
-		ArrayList<Integer> myList = new ArrayList<Integer>();
+		List<Offer> myList = new ArrayList<Offer>();
 		
 		try
 		{
-			String SQL = " SELECT idoffer FROM OFFER WHERE iduser=?";
-			PreparedStatement myStatement = myConnection.prepareStatement(SQL);
-			myStatement.setLong(1, myUser.getIdUser());
-			ResultSet rs  = myStatement.executeQuery();
-			
-			while(rs.next())
-			{
-				myList.add(rs.getInt(1));
-			}
-			myStatement.close();
-			myBdd.disconnect();
-			return myList;
+			User userTmp = em.find(User.class, myUser.getIdUser());
+        	if(userTmp != null)
+        	{
+        		return userTmp.getListOffer();
+        	}
+     		System.out.println("could not get User List Propositions");
+     		return null;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e) 
 		{
 			System.out.println(e.getMessage());
-			myBdd.disconnect();
 			return myList;
 		}
 	}
@@ -210,30 +179,23 @@ public class UserDAO
 	 */
 	public String getUserMail(User myUser)
 	{
-		Database myBdd = new Database();
-		Connection myConnection = myBdd.connect();
-		String mailTmp ="";
-		try
+        String mail = "";
+        
+        try
+        {
+        	User userTmp = em.find(User.class, myUser.getIdUser());
+        	if(userTmp != null)
+        	{
+        		return userTmp.getMail();
+        	}
+    		System.out.println("could not get Mail");
+    		return mail;      
+        }
+		catch (PersistenceException e) 
 		{
-			String SQL = " SELECT mail FROM USER WHERE iduser=?";
-			PreparedStatement myStatement = myConnection.prepareStatement(SQL);
-			myStatement.setLong(1, myUser.getIdUser());
-			ResultSet rs  = myStatement.executeQuery();
-			
-			while(rs.next())
-			{
-				mailTmp = rs.getNString(1);
-			}
-			myStatement.close();
-			myBdd.disconnect();
-			return mailTmp;
-		}
-		catch (SQLException e) 
-		{
-			myBdd.disconnect();
-			System.out.println(e.getMessage());
-			return mailTmp;
-		}	
+            System.out.println(e.getMessage());
+            return mail;
+        }	
 	}
 	
 	/**
@@ -244,22 +206,16 @@ public class UserDAO
 	 */
 	public boolean insertUser(User userToCreate)
 	{
-		Database myBdd = new Database();
-		Connection myConnection = myBdd.connect();
 		try
 		{
-			String SQL = " INSERT INTO USER (username,password,mail) VALUES (?,?,?)";
-			PreparedStatement myStatement = myConnection.prepareStatement(SQL,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setString(1, userToCreate.getUsername());
-			myStatement.setString(2, userToCreate.getPassword());
-			myStatement.setString(3, userToCreate.getMail());
-			myStatement.executeUpdate();
-			myStatement.close();
+			em.getTransaction().begin();
+			em.persist(userToCreate);
+			em.getTransaction().commit();
 			return true;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e) 
 		{
-			myBdd.disconnect();
+			em.getTransaction().rollback();
 			System.out.println(e.getMessage());
 			return false;
 		}
@@ -274,38 +230,20 @@ public class UserDAO
 	 */
 	public boolean usernameInputChecker(String username)
 	{
-		Database myBdd = new Database();
-		Connection myConnection = myBdd.connect();
-		
 		try
 		{
-			String SQL = " SELECT COUNT(iduser) FROM USER WHERE username = ?";
 			
-			PreparedStatement myStatement = myConnection.prepareStatement(SQL);
-			myStatement.setString(1, username );
-			ResultSet myResult = myStatement.executeQuery();
+			String sql = "SELECT COUNT(u.idUser) from User u WHERE u.username =username";
+			Query query = em.createQuery(sql);
+			long count = (long)query.getSingleResult();
+
+			if(count == 1)
+				return false;
 			
-			if(myResult.next() != false)
-			{
-				if(myResult.getInt(1) == 0)
-				{
-					myBdd.disconnect();
-					myStatement.close();
-					return true;
-				}
-				else
-				{
-					System.out.println("username is already in use");
-					myBdd.disconnect();
-					myStatement.close();
-					return false;	
-				}
-			}
-			return false;
+			return true;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e) 
 		{
-			myBdd.disconnect();
 			System.out.println(e.getMessage());
 			return false;
 		}
@@ -320,40 +258,39 @@ public class UserDAO
 	/* renvoie false si le nom username est deja utilisé, sinon vrai*/
 	public boolean mailInputChecker(String mail)
 	{
-		Database myBdd = new Database();
-		Connection myConnection = myBdd.connect();
-		
 		try
 		{
-			String SQL = " SELECT COUNT(iduser) FROM USER WHERE mail = ?";
+			String sql = "SELECT COUNT(u.idUser) from User u WHERE u.mail =mail";
+			Query query = em.createQuery(sql);
+			long count = (long)query.getSingleResult();
+
+			if(count == 1)
+				return false;
 			
-			PreparedStatement myStatement = myConnection.prepareStatement(SQL);
-			myStatement.setString(1, mail );
-			ResultSet myResult = myStatement.executeQuery();
-			
-			if(myResult.next() != false)
-			{
-				if(myResult.getInt(1) == 0)
-				{	
-					myBdd.disconnect();
-					myStatement.close();
-					return true;
-				}
-				else
-				{
-					System.out.println("Mail is already in use");
-					myBdd.disconnect();
-					myStatement.close();
-					return false;	
-				}
-			}
-			return false;
+			return true;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e) 
 		{
-			myBdd.disconnect();
 			System.out.println(e.getMessage());
 			return false;
 		}
+	}
+
+	public EntityManager getMyEntityManager() 
+	{
+		return em;
+	}
+
+	public void setMyEntityManager(EntityManager myEntityManager) 
+	{
+		this.em = myEntityManager;
+	}
+	
+	public EntityManagerFactory getEmf() {
+		return emf;
+	}
+
+	public void setEmf(EntityManagerFactory emf) {
+		this.emf = emf;
 	}
 }
