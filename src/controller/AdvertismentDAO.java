@@ -2,11 +2,13 @@ package controller;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
+import javax.persistence.Query;
 
 import model.Advertisment;
 
@@ -85,31 +87,26 @@ public class AdvertismentDAO
 	 */
 	public long getLastID()
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
 		long id = -1;
 		
 		try
 		{
-			String sqlCommand = " SELECT idAdvertisment FROM advertisment ORDER BY idAdvertisment DESC ";
-			Statement myStatement = myConnection.createStatement();
+			String sqlCommand = "SELECT DISTINCT category FROM advertisment";
+			Query query = em.createQuery(sqlCommand);
+			id = query.getFirstResult();
 			
-			ResultSet rs  = myStatement.executeQuery(sqlCommand);
+			if(id != -1)
+        	{
+        		return id;
+        	}
 			
-			if(rs.next())
-			{
-				id = rs.getInt(1);
-			}
-			
-			myStatement.close();
-			myDB.disconnect();
+			System.out.println("could not get the last id of advertisment");
 			return id;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e)
 		{
 			System.out.println(e.getMessage());
-			myDB.disconnect();
-			return 0;
+			return id;
 		}
 	}
 	
@@ -169,35 +166,30 @@ public class AdvertismentDAO
 	 *
 	 * @return the list of names
 	 */
-	public ArrayList<String> getCategories()
+	public List<String> getCategories()
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		
-		ArrayList<String> arrayToReturn = new ArrayList<String>();
+		List<String> ListToReturn = new ArrayList<String>();
 		
 		try
 		{
 			String sqlCommand = "SELECT DISTINCT category FROM advertisment";
-			Statement myStatement = myConnection.createStatement();
-			ResultSet rs  = myStatement.executeQuery(sqlCommand);
+			Query query = em.createQuery(sqlCommand);
+			ListToReturn = query.getResultList();
 			
-			while(rs.next())
-			{
-				arrayToReturn.add(rs.getString(1));
-			}				
+			if(ListToReturn != null)
+        	{
+        		return ListToReturn;
+        	}
 			
-			myStatement.close();
-			myDB.disconnect();
-			
-			return arrayToReturn;
+			System.out.println("could not get the list of categories");
+			return null;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e)
 		{
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return null;
-		}		
+		}
+		
 	}
 	
 	/**
@@ -256,7 +248,7 @@ public class AdvertismentDAO
 		Connection myConnection = myDB.connect();
 		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
 		
-		try
+		/*try
 		{
 			String sqlCommand = "SELECT idAdvertisment,localisation,price,category,titre FROM advertisment WHERE iduser=?";
 			
@@ -285,7 +277,7 @@ public class AdvertismentDAO
 			System.out.println(e.getMessage());
 			myDB.disconnect();
 			return null;
-		}
+		}*/
 	}
 	
 	/**
