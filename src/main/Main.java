@@ -3,6 +3,7 @@ package main;
 import javax.persistence.*;
 import javax.persistence.Persistence;
 
+
 import controller.MainController;
 import view.*;
 
@@ -30,6 +31,7 @@ public class Main
 		/*
 		Window myWindow = new Window();
 		myWindow.mainMenu();*/
+<<<<<<< Updated upstream
 
 		EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("Test");
         EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -61,5 +63,9 @@ public class Main
 		
 		System.out.println(myDAO.getUserName(UserTest));*/
 		
+=======
+		EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("test");
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+>>>>>>> Stashed changes
 	}	
 }
