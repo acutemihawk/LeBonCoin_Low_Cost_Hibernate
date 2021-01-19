@@ -186,6 +186,16 @@ public class User
 	{
 		this.listOffer = listOffer;
 	}
+	
+	public void addAdvertisment(Advertisment a)
+	{
+		listAdvertisment.add(a);
+	}
+	
+	public void removeAdvertisment(Advertisment a)
+	{
+		listAdvertisment.remove(a);
+	}
 
 	/**
 	 * Gets the password.

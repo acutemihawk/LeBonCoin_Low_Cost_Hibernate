@@ -3,6 +3,11 @@ package controller;
 import java.sql.*;
 import java.util.ArrayList;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
+
 import model.Advertisment;
 
 // TODO: Auto-generated Javadoc
@@ -12,6 +17,18 @@ import model.Advertisment;
 public class AdvertismentDAO
 {
 	
+	private EntityManager em;
+	private EntityManagerFactory emf;
+	
+	/**
+	 * Instantiates a new user DAO.
+	 */
+	public AdvertismentDAO()
+	{
+		emf  = Persistence.createEntityManagerFactory("Test");
+        em = emf.createEntityManager() ;
+	}
+	
 	/**
 	 * Insert an advertisment into the database.
 	 *
@@ -20,30 +37,18 @@ public class AdvertismentDAO
 	 */
 	public boolean insertAd(Advertisment ad)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		
 		try
 		{
-			String sqlCommand = "INSERT INTO advertisment (titre, localisation, price,description,category,iduser) VALUES (?,?,?,?,?,?)";
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setString(1, ad.getTitre());
-			myStatement.setString(2, ad.getLocalisation());
-			myStatement.setFloat(3, ad.getPrice());
-			myStatement.setString(4, ad.getDescription());
-			myStatement.setString(5, ad.getCategory());
-			myStatement.setLong(6, ad.getIdOwner());
-			myStatement.executeUpdate();
-			
-			myStatement.close();
-			myDB.disconnect();
+			em.getTransaction().begin();
+			em.persist(ad);
+			em.getTransaction().commit();
 			
 			return true;
 		}
-		catch (SQLException e)
+		catch (PersistenceException e)
 		{
+			em.getTransaction().rollback();
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return false;
 		}
 	}
@@ -56,25 +61,19 @@ public class AdvertismentDAO
 	 */
 	public boolean deleteAd(Advertisment ad)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		
 		try
 		{
-			String sqlCommand = "DELETE FROM advertisment WHERE IdAdvertisment=?";
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setLong(1, ad.getIdAdvertisment());
-			myStatement.executeUpdate();
-			
-			myStatement.close();
-			myDB.disconnect();	
+			em.getTransaction().begin();
+			Advertisment adToRemove = (Advertisment) em.find(Advertisment.class, ad.getIdAdvertisment());
+			em.remove(adToRemove);
+			em.getTransaction().commit();
 			
 			return true;
 		}
-		catch (SQLException e)
+		catch (PersistenceException e)
 		{
+			em.getTransaction().rollback();
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return false;
 		}
 	}
@@ -88,7 +87,7 @@ public class AdvertismentDAO
 	{
 		Database myDB = new Database();
 		Connection myConnection = myDB.connect();
-		long id = 0;
+		long id = -1;
 		
 		try
 		{

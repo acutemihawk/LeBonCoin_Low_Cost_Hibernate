@@ -40,7 +40,7 @@ public class Advertisment
 	@ManyToOne
 	@JoinColumn(name = "iduser")
 	private User owner;
-	
+
 	/** The id owner. */
 	@Transient
 	private long idOwner;
@@ -232,6 +232,14 @@ public class Advertisment
 	public void setListMyOffer(ArrayList<Offer> listMyOffer)
 	{
 		this.listMyOffer = listMyOffer;
+	}
+	
+	public User getOwner() {
+		return owner;
+	}
+
+	public void setOwner(User owner) {
+		this.owner = owner;
 	}
 	
 
