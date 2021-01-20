@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 
+import org.hibernate.annotations.Type;
+
 
 // TODO: Auto-generated Javadoc
 /**
@@ -40,10 +42,6 @@ public class Advertisment
 	@ManyToOne
 	@JoinColumn(name = "iduser")
 	private User owner;
-
-	/** The id owner. */
-	@Transient
-	private long idOwner;
 	
 	/**
 	 * Instantiates a new advertisment.
@@ -55,9 +53,8 @@ public class Advertisment
 	 * @param Ad_price the ad price
 	 * @param Ad_desc the ad desc
 	 */
-	public Advertisment(long idOwn, String Ad_titre, String Ad_category, String Ad_localisation, float Ad_price, String Ad_desc)
+	public Advertisment(String Ad_titre, String Ad_category, String Ad_localisation, float Ad_price, String Ad_desc)
 	{
-		idOwner = idOwn;
 		titre = Ad_titre;
 		category = Ad_category;
 		localisation = Ad_localisation;
@@ -92,26 +89,6 @@ public class Advertisment
 	public void setIdAdvertisment(long idAdvertisment)
 	{
 		this.idAdvertisment = idAdvertisment;
-	}
-	
-	/**
-	 * Gets the id owner.
-	 *
-	 * @return the id owner
-	 */
-	public long getIdOwner()
-	{
-		return idOwner;
-	}
-	
-	/**
-	 * Sets the id owner.
-	 *
-	 * @param idOwner the new id owner
-	 */
-	public void setIdOwner(long idOwner)
-	{
-		this.idOwner = idOwner;
 	}
 	
 	/**

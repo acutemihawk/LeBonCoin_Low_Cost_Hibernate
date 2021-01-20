@@ -172,7 +172,7 @@ public class Window
 		ArrayList<String> categoriesArray = new ArrayList<String>();
 		int numberToDisplay = 0;
 		
-		categoriesArray = mainController.getMyAdvDAO().getCategories();
+		//categoriesArray = mainController.getMyAdvDAO().getCategories();
 		
 		System.out.println("----------------------------------------------------------------------");
 		System.out.println("Choose one option from below and press Enter to navigate :");
@@ -285,7 +285,7 @@ public class Window
             System.out.println("Maximum price:");
             maxPrice = myScanner.nextFloat();
             
-            advertismentList = mainController.getMyAdvDAO().search(category, minPrice, maxPrice, localisation);
+            //advertismentList = mainController.getMyAdvDAO().search(category, minPrice, maxPrice, localisation);
             
             System.out.println("----------------------------------------------------------------------");
     		System.out.println("Choose one option from below and press Enter to navigate :");
@@ -672,7 +672,7 @@ public class Window
         
         try
         {
-            advertismentList = mainController.getMyAdvDAO().getUserAdvertisments(mainController.getMyUser().getIdUser());
+            //advertismentList = mainController.getMyAdvDAO().getUserAdvertisments(mainController.getMyUser().getIdUser());
             
             System.out.println("----------------------------------------------------------------------");
     		System.out.println("Choose one option from below and press Enter to navigate :");

@@ -1,5 +1,6 @@
 package controller;
 
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class AdvertismentDAO
 	public AdvertismentDAO()
 	{
 		emf  = Persistence.createEntityManagerFactory("Test");
-        em = emf.createEntityManager() ;
+        em = emf.createEntityManager();
 	}
 	
 	/**
@@ -91,9 +92,9 @@ public class AdvertismentDAO
 		
 		try
 		{
-			String sqlCommand = "SELECT DISTINCT category FROM advertisment";
+			String sqlCommand = "SELECT DISTINCT category FROM Advertisment";
 			Query query = em.createQuery(sqlCommand);
-			id = query.getFirstResult();
+			id = (long) query.getResultList().get(query.getFirstResult());
 			
 			if(id != -1)
         	{
@@ -119,44 +120,36 @@ public class AdvertismentDAO
 	 * @param localisation the localisation
 	 * @return the array list of advertisment
 	 */
-	public ArrayList<Advertisment> search(String category, float minPrice, float maxPrice,String localisation)
+	public List<Advertisment> search(String category, float minPrice, float maxPrice,String localisation)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
-		
 		try
 		{
-			//l'id, le titre, le prix, et le titre
-			String sqlCommand = "SELECT idAdvertisment,localisation,price,category,titre FROM advertisment WHERE LOWER(category) LIKE ? AND price > ? and price < ? AND LOWER(localisation) LIKE ? " ;
+			String sqlCommand = "SELECT idAdvertisment FROM Advertisment WHERE "
+				+ "LOWER(category) LIKE '" + "%"+category.toLowerCase()+"%" + "' AND "
+				+ "price > " + minPrice + " and price < " + maxPrice + " AND "
+				+ "LOWER(localisation) LIKE '" + "%"+localisation.toLowerCase()+"%'";
 			
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setString(4, "%"+localisation.toLowerCase()+"%");
-			myStatement.setString(1, "%"+category.toLowerCase()+"%");
-			myStatement.setFloat(2, minPrice);
-			myStatement.setFloat(3, maxPrice);
-			ResultSet myResultSet = myStatement.executeQuery();
+			List<BigInteger> myList = new ArrayList<BigInteger>();
+			List<Advertisment> myAdvList = new ArrayList<Advertisment>();
 			
-			while(myResultSet.next())
+			Query query = em.createNativeQuery(sqlCommand);
+			myList = query.getResultList();
+			
+			for(BigInteger id : myList)
 			{
-				Advertisment myAdvToReturn = new Advertisment();
-				myAdvToReturn.setIdAdvertisment(myResultSet.getLong(1));
-				myAdvToReturn.setLocalisation(myResultSet.getString(2));	
-				myAdvToReturn.setPrice(myResultSet.getFloat(3));
-				myAdvToReturn.setCategory(myResultSet.getString(4));
-				myAdvToReturn.setTitre(myResultSet.getString(5));
-				myArrayList.add(myAdvToReturn);
+				myAdvList.add(em.find(Advertisment.class, id.longValue()));
 			}
 			
-			myStatement.close();
-			myDB.disconnect();
-
-			return myArrayList;
+			if(myList != null)
+			{
+				return myAdvList;
+			}
+			
+			return null;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e)
 		{
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return null;
 		}
 	}
@@ -168,17 +161,17 @@ public class AdvertismentDAO
 	 */
 	public List<String> getCategories()
 	{
-		List<String> ListToReturn = new ArrayList<String>();
+		List<String> myList = new ArrayList<String>();
 		
 		try
 		{
-			String sqlCommand = "SELECT DISTINCT category FROM advertisment";
+			String sqlCommand = "SELECT DISTINCT category FROM Advertisment";
 			Query query = em.createQuery(sqlCommand);
-			ListToReturn = query.getResultList();
+			myList = query.getResultList();
 			
-			if(ListToReturn != null)
+			if(myList != null)
         	{
-        		return ListToReturn;
+        		return myList;
         	}
 			
 			System.out.println("could not get the list of categories");
@@ -200,7 +193,17 @@ public class AdvertismentDAO
 	 */
 	public ArrayList<Advertisment> getAdvertismentsFromCategory(String category)
 	{
-		Database myDB = new Database();
+		try
+		{
+			
+		}
+		catch (PersistenceException e)
+		{
+			
+		}
+		
+		
+		/*Database myDB = new Database();
 		Connection myConnection = myDB.connect();
 		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
 		
@@ -233,7 +236,7 @@ public class AdvertismentDAO
 			System.out.println(e.getMessage());
 			myDB.disconnect();
 			return null;
-		}
+		}*/
 	}
 	
 	/**
@@ -248,7 +251,7 @@ public class AdvertismentDAO
 		Connection myConnection = myDB.connect();
 		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
 		
-		/*try
+		try
 		{
 			String sqlCommand = "SELECT idAdvertisment,localisation,price,category,titre FROM advertisment WHERE iduser=?";
 			
@@ -277,7 +280,7 @@ public class AdvertismentDAO
 			System.out.println(e.getMessage());
 			myDB.disconnect();
 			return null;
-		}*/
+		}
 	}
 	
 	/**

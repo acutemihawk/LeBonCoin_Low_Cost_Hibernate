@@ -131,7 +131,7 @@ public class MainController
 		myAdv.setTitre(titre);
 		myAdv.setCategory(category);
 		myAdv.setDescription(description);
-		myAdv.setIdOwner(myUser.getIdUser());
+		//myAdv.setIdOwner(myUser.getIdUser());
 		myAdv.setPrice(price);
 		myAdv.setLocalisation(localisation);
 		
