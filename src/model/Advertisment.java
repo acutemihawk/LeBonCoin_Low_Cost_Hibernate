@@ -11,7 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 public class Advertisment
-{
+{ 
 	
 	/** The id advertisment. */
 	@Id 
@@ -36,15 +36,11 @@ public class Advertisment
 	/** The list my offer. */
 	@OneToMany(mappedBy ="Adv",cascade = CascadeType.ALL)
 	private List<Offer> listMyOffer;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "iduser")
 	private User owner;
 
-	/** The id owner. */
-	@Transient
-	private long idOwner;
-	
 	/**
 	 * Instantiates a new advertisment.
 	 *
@@ -57,7 +53,6 @@ public class Advertisment
 	 */
 	public Advertisment(long idOwn, String Ad_titre, String Ad_category, String Ad_localisation, float Ad_price, String Ad_desc)
 	{
-		idOwner = idOwn;
 		titre = Ad_titre;
 		category = Ad_category;
 		localisation = Ad_localisation;
@@ -94,25 +89,6 @@ public class Advertisment
 		this.idAdvertisment = idAdvertisment;
 	}
 	
-	/**
-	 * Gets the id owner.
-	 *
-	 * @return the id owner
-	 */
-	public long getIdOwner()
-	{
-		return idOwner;
-	}
-	
-	/**
-	 * Sets the id owner.
-	 *
-	 * @param idOwner the new id owner
-	 */
-	public void setIdOwner(long idOwner)
-	{
-		this.idOwner = idOwner;
-	}
 	
 	/**
 	 * Gets the titre.
@@ -242,7 +218,15 @@ public class Advertisment
 		this.owner = owner;
 	}
 	
-
+	public void addAdvertisment(Offer a)
+	{
+		listMyOffer.add(a);
+	}
+	
+	public void removeAdvertisment(Offer a)
+	{
+		listMyOffer.remove(a);
+	}
 	
 	
 	

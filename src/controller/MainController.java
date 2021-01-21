@@ -131,7 +131,7 @@ public class MainController
 		myAdv.setTitre(titre);
 		myAdv.setCategory(category);
 		myAdv.setDescription(description);
-		myAdv.setIdOwner(myUser.getIdUser());
+		//myAdv.setIdOwner(myUser.getIdUser());
 		myAdv.setPrice(price);
 		myAdv.setLocalisation(localisation);
 		
@@ -199,7 +199,7 @@ public class MainController
 		Offer.setNewPrice(newPrice);
 		Offer.setIdBuyer(myUser.getIdUser());
 		
-		if(myOfDAO.insertInformation(Offer) == true) 
+		/*if(myOfDAO.insertInformation(Offer) == true) 
 		{
 			Offer.setIdOffer(myOfDAO.getLastOfferID());
 			//myUser.getListOffer().add((int) Offer.getIdOffer());
@@ -208,7 +208,7 @@ public class MainController
 			System.out.println("Offer successfully created !");
 			return true;
 		}
-		else
+		else*/
 			return false;
 	}
 
@@ -277,6 +277,7 @@ public class MainController
 	 */
 	public boolean refuseOffer(long idOffer)
 	{
+		/* delete dans la liste des propistion recues de l'advertisment mais aussi delte dans la liste des propistions du user */
 		if (testConnection() == false)
 			return false;
 		

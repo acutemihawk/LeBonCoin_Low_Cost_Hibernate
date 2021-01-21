@@ -29,14 +29,6 @@ public class Offer
 	private float newPrice;
 	
 	
-	@Transient
-	/** The id buyer. */
-	private long idBuyer;
-	
-	@Transient
-	/** The id advertisment. */
-	private long idAdvertisment;
-	
 	/**
 	 * Instantiates a new offer.
 	 *
@@ -44,10 +36,8 @@ public class Offer
 	 * @param idBuy the id buy
 	 * @param Offer_newPrice the offer new price
 	 */
-	public Offer(long idAd, long idBuy, float Offer_newPrice)
+	public Offer(float Offer_newPrice)
 	{
-		idAdvertisment = idAd;
-		idBuyer = idBuy;
 		newPrice = Offer_newPrice;
 	}
 	
@@ -79,46 +69,6 @@ public class Offer
 	}
 	
 	/**
-	 * Gets the id advertisment.
-	 *
-	 * @return the id advertisment
-	 */
-	public long getIdAdvertisment()
-	{
-		return idAdvertisment;
-	}
-	
-	/**
-	 * Sets the id advertisment.
-	 *
-	 * @param idAdvertisment the new id advertisment
-	 */
-	public void setIdAdvertisment(long idAdvertisment)
-	{
-		this.idAdvertisment = idAdvertisment;
-	}
-	
-	/**
-	 * Gets the id buyer.
-	 *
-	 * @return the id buyer
-	 */
-	public long getIdBuyer()
-	{
-		return idBuyer;
-	}
-	
-	/**
-	 * Sets the id buyer.
-	 *
-	 * @param idBuyer the new id buyer
-	 */
-	public void setIdBuyer(long idBuyer)
-	{
-		this.idBuyer = idBuyer;
-	}
-	
-	/**
 	 * Gets the new price.
 	 *
 	 * @return the new price
@@ -138,5 +88,23 @@ public class Offer
 		this.newPrice = newPrice;
 	}
 	
+	public User getBuyer() 
+	{
+		return buyer;
+	}
+
+	public void setBuyer(User buyer)
+	{
+		this.buyer = buyer;
+	}
 	
+	public Advertisment getAdv() 
+	{
+		return Adv;
+	}
+
+	public void setAdv(Advertisment adv)
+	{
+		Adv = adv;
+	}
 }

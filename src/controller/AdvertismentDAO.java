@@ -32,7 +32,7 @@ public class AdvertismentDAO
 			myStatement.setFloat(3, ad.getPrice());
 			myStatement.setString(4, ad.getDescription());
 			myStatement.setString(5, ad.getCategory());
-			myStatement.setLong(6, ad.getIdOwner());
+			//myStatement.setLong(6, ad.getIdOwner());
 			myStatement.executeUpdate();
 			
 			myStatement.close();

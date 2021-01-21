@@ -37,6 +37,7 @@ public class User
 	@OneToMany(mappedBy ="buyer",cascade = CascadeType.ALL)
 	private List<Offer> listOffer;
 	
+
 	@Transient
 	/** The is connected. */
 	private boolean isConnected = false;
@@ -187,6 +188,16 @@ public class User
 		this.listOffer = listOffer;
 	}
 	
+	public void addProposition(Offer a)
+	{
+		listOffer.add(a);
+	}
+	
+	public void removeProposition(Offer a)
+	{
+		listOffer.remove(a);
+	}
+	
 	public void addAdvertisment(Advertisment a)
 	{
 		listAdvertisment.add(a);
@@ -211,7 +222,8 @@ public class User
 	 *
 	 * @param password the new password
 	 */
-	public void setPassword(String password) {
+	public void setPassword(String password) 
+	{
 		this.password = password;
 	}
 	
