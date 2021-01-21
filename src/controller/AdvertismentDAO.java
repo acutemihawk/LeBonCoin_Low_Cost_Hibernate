@@ -82,36 +82,6 @@ public class AdvertismentDAO
 	}
 	
 	/**
-	 * Gets the ID of the last advertisment created
-	 *
-	 * @return the last ID
-	 */
-	public long getLastID()
-	{
-		long id = -1;
-		
-		try
-		{
-			String sqlCommand = "SELECT DISTINCT category FROM Advertisment";
-			Query query = em.createQuery(sqlCommand);
-			id = (long) query.getResultList().get(query.getFirstResult());
-			
-			if(id != -1)
-        	{
-        		return id;
-        	}
-			
-			System.out.println("could not get the last id of advertisment");
-			return id;
-		}
-		catch (PersistenceException e)
-		{
-			System.out.println(e.getMessage());
-			return id;
-		}
-	}
-	
-	/**
 	 * Search for the advertisments that correspond to the criterias given in parameters.
 	 *
 	 * @param category the category
@@ -258,50 +228,5 @@ public class AdvertismentDAO
 			System.out.println(e.getMessage());
 			return null;
 		}
-	}
-	
-	/**
-	 * Verify that the given advertisment exists in the database.
-	 *
-	 * @param ad the advertisment to check
-	 * @return true, if true
-	 */
-	public boolean verify(Advertisment ad) 
-	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		
-		try
-		{
-			String sqlCommand = " SELECT COUNT(*) FROM advertisment where idAdvertisment=?";
-			
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand);
-			myStatement.setLong(1, ad.getIdAdvertisment());
-			ResultSet myResult  = myStatement.executeQuery();
-			
-			if(myResult.next() != false)
-			{
-				if(myResult.getInt(1) == 1)
-				{	
-					myDB.disconnect();
-					myStatement.close();
-					return true;
-				}
-				else
-				{
-					System.out.println("The advertisment does not exist");
-					myDB.disconnect();
-					myStatement.close();
-					return false;	
-				}
-			}
-			return false;
-		}
-		catch (SQLException e)
-		{
-			System.out.println(e.getMessage());
-			myDB.disconnect();
-			return false;
-		}	
 	}
 }
