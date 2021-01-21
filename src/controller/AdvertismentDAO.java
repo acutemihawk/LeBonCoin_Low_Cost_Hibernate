@@ -124,7 +124,7 @@ public class AdvertismentDAO
 	{
 		try
 		{
-			String sqlCommand = "SELECT idAdvertisment FROM Advertisment WHERE "
+			String Command = "SELECT idAdvertisment FROM Advertisment WHERE "
 				+ "LOWER(category) LIKE '" + "%"+category.toLowerCase()+"%" + "' AND "
 				+ "price > " + minPrice + " and price < " + maxPrice + " AND "
 				+ "LOWER(localisation) LIKE '" + "%"+localisation.toLowerCase()+"%'";
@@ -132,16 +132,16 @@ public class AdvertismentDAO
 			List<BigInteger> myList = new ArrayList<BigInteger>();
 			List<Advertisment> myAdvList = new ArrayList<Advertisment>();
 			
-			Query query = em.createNativeQuery(sqlCommand);
+			Query query = em.createNativeQuery(Command);
 			myList = query.getResultList();
 			
-			for(BigInteger id : myList)
+			if(myList.size() != 0)
 			{
-				myAdvList.add(em.find(Advertisment.class, id.longValue()));
-			}
-			
-			if(myList != null)
-			{
+				for(BigInteger id : myList)
+				{
+					myAdvList.add(em.find(Advertisment.class, id.longValue()));
+				}
+				
 				return myAdvList;
 			}
 			
@@ -169,7 +169,7 @@ public class AdvertismentDAO
 			Query query = em.createQuery(sqlCommand);
 			myList = query.getResultList();
 			
-			if(myList != null)
+			if(myList.size() != 0)
         	{
         		return myList;
         	}
@@ -191,52 +191,36 @@ public class AdvertismentDAO
 	 * @param category the name of the category
 	 * @return the list of advertisments
 	 */
-	public ArrayList<Advertisment> getAdvertismentsFromCategory(String category)
+	public List<Advertisment> getAdvertismentsFromCategory(String category)
 	{
 		try
 		{
+			String command = "SELECT idAdvertisment FROM Advertisment WHERE LOWER(category) LIKE ?";
 			
+			List<Long> myList = new ArrayList<Long>();
+			List<Advertisment> myAdvList = new ArrayList<Advertisment>();
+			
+			Query query = em.createQuery(command).setParameter(0, category);
+			myList = query.getResultList();
+			
+			if(myList.size() != 0)
+			{
+				for(long id : myList)
+				{
+					myAdvList.add(em.find(Advertisment.class, id));
+				}
+				
+				return myAdvList;
+			}
+			
+			return null;
 		}
 		catch (PersistenceException e)
 		{
-			
-		}
-		
-		
-		/*Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
-		
-		try
-		{
-			String sqlCommand = "SELECT idAdvertisment,localisation,price,category,titre FROM advertisment WHERE LOWER(category) LIKE ?" ;
-			
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setString(1, "%"+category.toLowerCase()+"%");
-			ResultSet myResultSet = myStatement.executeQuery();
-			
-			while(myResultSet.next())
-			{
-				Advertisment myAdvToReturn = new Advertisment();
-				myAdvToReturn.setIdAdvertisment(myResultSet.getLong(1));
-				myAdvToReturn.setLocalisation(myResultSet.getString(2));	
-				myAdvToReturn.setPrice(myResultSet.getFloat(3));
-				myAdvToReturn.setCategory(myResultSet.getString(4));
-				myAdvToReturn.setTitre(myResultSet.getString(5));
-				myArrayList.add(myAdvToReturn);
-			}
-			
-			myStatement.close();
-			myDB.disconnect();
-
-			return myArrayList;
-		}
-		catch (SQLException e) 
-		{
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return null;
-		}*/
+		}
+		
 	}
 	
 	/**
@@ -245,40 +229,33 @@ public class AdvertismentDAO
 	 * @param idUser the user id
 	 * @return the user advertisments
 	 */
-	public ArrayList<Advertisment> getUserAdvertisments(long idUser)
+	public List<Advertisment> getUserAdvertisments(long idUser)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
-		
 		try
 		{
-			String sqlCommand = "SELECT idAdvertisment,localisation,price,category,titre FROM advertisment WHERE iduser=?";
+			String command = "SELECT idAdvertisment FROM Advertisment WHERE iduser=?";
 			
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setLong(1, idUser);
-			ResultSet myResultSet = myStatement.executeQuery();
+			List<Long> myList = new ArrayList<Long>();
+			List<Advertisment> myAdvList = new ArrayList<Advertisment>();
 			
-			while(myResultSet.next())
+			Query query = em.createQuery(command).setParameter(0, idUser);
+			myList = query.getResultList();
+			
+			if(myList.size() != 0)
 			{
-				Advertisment myAdvToReturn = new Advertisment();
-				myAdvToReturn.setIdAdvertisment(myResultSet.getLong(1));
-				myAdvToReturn.setLocalisation(myResultSet.getString(2));	
-				myAdvToReturn.setPrice(myResultSet.getFloat(3));
-				myAdvToReturn.setCategory(myResultSet.getString(4));
-				myAdvToReturn.setTitre(myResultSet.getString(5));
-				myArrayList.add(myAdvToReturn);
+				for(long id : myList)
+				{
+					myAdvList.add(em.find(Advertisment.class, id));
+				}
+				
+				return myAdvList;
 			}
 			
-			myStatement.close();
-			myDB.disconnect();
-
-			return myArrayList;
+			return null;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e)
 		{
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return null;
 		}
 	}

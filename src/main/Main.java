@@ -67,7 +67,9 @@ public class Main
 		
 		myuserdao.insertUser(UserTest);
 		
-		System.out.println(advDAO.getCategories());
+		System.out.println(advDAO.getUserAdvertisments(3));
+		
+		//System.out.println(advDAO.getAdvertismentsFromCategory("xbox").get(0).getDescription());
 		
 		/*myuserdao.getMyEntityManager().getTransaction().begin();
 		UserTest.removeAdvertisment(a);
