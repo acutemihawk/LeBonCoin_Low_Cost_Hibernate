@@ -8,7 +8,9 @@ import javax.persistence.*;
 
 
 import model.Advertisment;
+import model.Offer;
 import model.User;
+
 
 // TODO: Auto-generated Javadoc
 /**
@@ -21,12 +23,20 @@ public class AdvertismentDAO
 	private EntityManagerFactory emf;
 	
 	/**
-	 * Instantiates a new user DAO.
+	 * Instantiates a new Advertisment DAO.
 	 */
 	public AdvertismentDAO()
 	{
-		emf  = Persistence.createEntityManagerFactory("Test");
-        em = emf.createEntityManager();
+		try
+		{
+			emf  = Persistence.createEntityManagerFactory("Test");
+	        em = emf.createEntityManager() ;
+		}
+		catch (PersistenceException e) 
+		{
+            System.out.println("Could not connect to Database");
+            System.exit(1);
+        }
 	}
 	
 	/**
@@ -60,19 +70,22 @@ public class AdvertismentDAO
 	 * @param ad the advertisment
 	 * @return true, if successful
 	 */
-	public boolean deleteAd(Advertisment ad)
+	public boolean deleteAd(long id)
 	{
 		try
 		{
+			/*
 			em.getTransaction().begin();
 			
-			Advertisment adToRemove = (Advertisment) em.find(Advertisment.class, ad.getIdAdvertisment());
-			Advertisment mergedAdv = em.merge(adToRemove);
-			String hql = "Delete from Advertisment where idAdvertisment = ?1";
-			Query query = em.createQuery(hql);
-			query.setParameter(1, mergedAdv.getIdAdvertisment());
-			query.executeUpdate();
-			em.getTransaction().commit();
+			Advertisment advDeleted = em.find(Advertisment.class, id);
+			Offer of = em.find(Offer.class, advDeleted.getListMyOffer().get(0).getIdOffer());
+			advDeleted.removeOffer(of);
+		
+			Advertisment mergedAdv = em.merge(advDeleted);
+			
+			em.remove(mergedAdv);
+			
+			em.getTransaction().commit();*/
 		
 			return true;
 		}
@@ -84,6 +97,14 @@ public class AdvertismentDAO
 		}
 	}
 	
+	
+	
+	/**
+	 * Get an advertisment from the database.
+	 *
+	 * @param id the id of the Advertisment to get
+	 * @return the advertisment
+	 */
 	public Advertisment getAdvertismentById(long idAdv)
 	{
 		try

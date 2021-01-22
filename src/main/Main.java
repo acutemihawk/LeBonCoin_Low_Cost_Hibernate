@@ -40,36 +40,75 @@ public class Main
 		
 
 		System.out.println(m.addUserAdvertisment("blab", "blab", 50,"blab", "blab"));
-		System.out.println("APRES");
 		m.disconnect();
 		
 		m.createAccount("kaaris", "test", "mahoufal@gmail.com");
 		System.out.println(m.userConnect("kaaris", "test"));
-		System.out.println("HIHIHI");
+		m.addUserAdvertisment("blab", "blab", 50,"blab", "blab");
+		m.disconnect();
+
+		m.userConnect("david", "test");
 		System.out.println(m.getMyUser().getIdUser());
 		System.out.println(m.getMyUser().getMail());
 		System.out.println(m.getMyUser().getPassword());
 		System.out.println(m.getMyUser().getListAdvertisment());
 		System.out.println(m.getMyUser().getListProposition());
-		//System.out.println(m.getMyUser().getListAdvertisment().get(0).getIdAdvertisment());
+		m.disconnect();
 
-
-
-		//
-
+		m.createAccount("mahou", "azerty", "baloo@gmail.com");
+		System.out.println(m.userConnect("mahou", "azerty"));
+		m.addUserAdvertisment("blab", "blab", 50,"blab", "blab");
+		m.addUserAdvertisment("blab", "blab", 50,"blab", "blab");
+		m.addUserAdvertisment("blab", "blab", 50,"blab", "blab");
+		m.addUserProposition(7, 50);
+		m.addUserProposition(8, 700);
+		m.disconnect();
 		
+		m.createAccount("lolola", "azerty", "pol@gmail.com");
+		System.out.println(m.userConnect("lolola", "azerty"));
+		m.addUserProposition(2, 50);
+		m.addUserProposition(4, 700);
+		m.addUserProposition(6, 900);
 
+		m.disconnect();
+
+		m.userConnect("david", "test");
+		m.delUserAdvertisment(2);
+
+	//	m.delUserAdvertisment(2);
+		
+		
+		//System.out.println("HIHIHI");
+
+		//System.out.println(m.getMyUser().getListAdvertisment().get(0).getIdAdvertisment());
 
 		/*
 		System.out.println(m.delUserAdvertisment(2));
-		System.out.println(m.getMyUser().getListAdvertisment());*/
+		System.out.println(m.getMyUser().getListAdvertisment());
 
 		m.addUserProposition(2, 50);
 		m.addUserProposition(2, 700);
 		m.addUserProposition(2, 900);
+		//System.out.println(m.getMyUser().getListProposition());
+		//System.out.println(m.getUserPropositions().get(0).getIdOffer());
+		m.disconnect();
+
+		m.userConnect("david", "test");
+		System.out.println(m.getMyUser().getIdUser());
+		System.out.println(m.getMyUser().getMail());
+		System.out.println(m.getMyUser().getPassword());
+		System.out.println(m.getMyUser().getListAdvertisment());
 		System.out.println(m.getMyUser().getListProposition());
+		
+		System.out.println(m.addUserAdvertisment("blab", "blab", 50,"blab", "blab"));
+		System.out.println(m.getMyUser().getListAdvertisment());*/
+
 
 		
+		
+		
+		//System.out.println(m.getUserReceivedOffer());
+		//System.out.println(m.getUserReceivedOffer().get(0).getIdOffer());
 		//System.out.println(m.delUserProposition(4));
 		
 		//System.out.println(m.acceptOffer(4));

@@ -1,6 +1,8 @@
 package controller;
 
 import model.*;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,15 +17,23 @@ public class UserDAO
 	@PersistenceContext(type = PersistenceContextType.TRANSACTION)
 	private EntityManager em;
 	private EntityManagerFactory emf;
+	
 	/**
 	 * Instantiates a new user DAO.
 	 */
 	public UserDAO()
 	{
-		emf  = Persistence.createEntityManagerFactory("Test");
-        em = emf.createEntityManager() ;
+		try
+		{
+			emf  = Persistence.createEntityManagerFactory("Test");
+	        em = emf.createEntityManager() ;
+		}
+		catch (PersistenceException e) 
+		{
+            System.out.println("Could not connect to Database");
+            System.exit(1);
+        }
 	}
-	
 
 	
 	public long authentificate(String username, String password)
@@ -51,25 +61,46 @@ public class UserDAO
 	
 	
 	/**
-	 * Gets the list of offer received of the user in parameters
+	 * Gets the list of offers received by the user in parameter
 	 *
 	 * @param myUser 
 	 * @return the user list offer
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Integer> getUserListOffer(User myUser)
+	public List<Offer> getUserListOffer(User myUser)
 	{	
-		
-		List<Integer> resultList = new ArrayList<Integer>();
-		
-		String SQL = "SELECT offer.idoffer FROM advertisment INNER JOIN OFFER ON advertisment.idAdvertisment= offer.idAdvertisment WHERE advertisment.iduser= ?";
-		Query query = em.createNativeQuery(SQL);
-		resultList = (List<Integer>)query.setParameter(1, myUser.getIdUser()).getResultList();
-		return resultList;
+		try
+		{
+			String command = "SELECT offer.idoffer FROM advertisment INNER JOIN OFFER ON advertisment.idAdvertisment= offer.idAdvertisment WHERE advertisment.iduser= ?";
+			
+			List<BigInteger> resultList = new ArrayList<BigInteger>();
+			List<Offer> myOfferList = new ArrayList<Offer>();
+			
+			
+			Query query = em.createNativeQuery(command).setParameter(1, myUser.getIdUser());
+			resultList = query.getResultList();
+			
+			if(resultList.size() != 0)
+			{
+				for(BigInteger id : resultList)
+				{
+					myOfferList.add(em.find(Offer.class, id.longValue()));
+				}
+				
+				return myOfferList;
+			}
+			System.out.println("could not get User List Propositions");
+			return null;
+		}
+		catch (PersistenceException e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
 	}
 	
 	/**
-	 * Gets the list of propositions of the user in parametres
+	 * Gets the list of propositions of the user in parameter
 	 *
 	 * @param myUser the my user
 	 * @return the user list propositions
@@ -82,7 +113,12 @@ public class UserDAO
 			User userTmp = em.find(User.class, myUser.getIdUser());
         	if(userTmp != null)
         	{
-        		return userTmp.getListProposition();
+        		if ( userTmp.getListProposition().size() != 0)
+        		{
+            		return userTmp.getListProposition();
+        		}
+        		else
+        			return null;
         	}
      		System.out.println("could not get User List Propositions");
      		return null;
@@ -93,6 +129,7 @@ public class UserDAO
 			return null;
 		}
 	}
+	
 	
 	/**
 	 * Insert the user in parameters into the database
@@ -119,7 +156,6 @@ public class UserDAO
 			System.out.println(e.getMessage());
 			return false;
 		}
-		
 	}
 	
 	
@@ -149,13 +185,13 @@ public class UserDAO
 		}
 	}
 	
+	
 	/**
 	 * Checks if the mail in parameters is not already taken by someone
 	 *
 	 * @param mail the mail
 	 * @return true if the mail is not used
 	 */
-	/* renvoie false si le nom username est deja utilisé, sinon vrai*/
 	public boolean mailInputChecker(String mail)
 	{
 		try
@@ -176,15 +212,45 @@ public class UserDAO
 		}
 	}
 	
+	
+	/**
+	 * Gets the user corresponding to the User id given in parameter
+	 *
+	 * @param idUser the id of the user
+	 * @return the user
+	 */
 	public User getUserById(long idUser)
 	{
 		try
 		{
 			User userToFind = em.find(User.class,idUser);
 			if(userToFind != null)
+			{
 				return userToFind;
+			}
 			else
 				return null;
+		}
+		catch (PersistenceException e)
+		{
+			em.getTransaction().rollback();
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+	
+	/**
+	 * Gets the user corresponding to the User id given in parameter
+	 *
+	 * @param idUser the id of the user
+	 * @return the user
+	 */
+	public User mergeUser(User userToMerge)
+	{
+		try
+		{
+			User mergedUser = em.merge(userToMerge);
+			return mergedUser;
 		}
 		catch (PersistenceException e)
 		{

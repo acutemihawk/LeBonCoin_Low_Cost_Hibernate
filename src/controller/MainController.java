@@ -60,6 +60,20 @@ public class MainController
 			if(myUserDAO.getUserById(id) != null)
 			{
 				myUser = myUserDAO.getUserById(id);
+				if(myAdvDAO.getUserAdvertisments(myUser.getIdUser()) != null )
+				{
+					System.out.println(myAdvDAO.getUserAdvertisments(myUser.getIdUser()).get(0).getIdAdvertisment());
+					myUser.setListAdvertisment(myAdvDAO.getUserAdvertisments(myUser.getIdUser()));
+				}
+				if(myUserDAO.getUserListPropositions(myUser) != null )
+				{
+					System.out.println(myUserDAO.getUserListPropositions(myUser).get(0).getIdOffer());
+					myUser.setListProposition(myUserDAO.getUserListPropositions(myUser));
+				}
+				//MERGE
+				myUser = myUserDAO.mergeUser(myUser);
+				
+			 	//myUser.setListAdvertisment(myAdvDAO.getUserAdvertisments(myUser.getIdUser()));
 				myUser.setConnected(true);
 				return true;
 			}
@@ -156,11 +170,8 @@ public class MainController
 		if (testConnection() == false)
 			return false;
 		
-		Advertisment advToRemove = myAdvDAO.getAdvertismentById(idAdv);
-		advToRemove.setOwner(null);
-		myUser.removeAdvertisment(advToRemove);
 		
-		if(myAdvDAO.deleteAd(advToRemove) == true)
+		if(myAdvDAO.deleteAd(idAdv) == true)
 			return true;
 		else 
 			return false;
@@ -248,10 +259,11 @@ public class MainController
 		
         Advertisment advSold = myAdvDAO.getAdvertismentById(offerAccepted.getAdv().getIdAdvertisment());
         
-		if(offerAccepted.getBuyer().getIdUser() == myUser.getIdUser())
-		{
+        if(offerAccepted.getAdv().getOwner().getIdUser() == myUser.getIdUser())		
+        {
 			advSold.removeOffer(offerAccepted);
-			return ( myAdvDAO.deleteAd(advSold) == true && myOfDAO.deleteAllProposition(offerAccepted) == true );
+			//return ( myAdvDAO.deleteAd(advSold) == true && myOfDAO.deleteAllProposition(offerAccepted) == true );
+			return false;
 	
 		}
 		else 
@@ -277,8 +289,8 @@ public class MainController
 		Advertisment adRefusingOffer = myAdvDAO.getAdvertismentById(offerRefused.getAdv().getIdAdvertisment());
 		User userDeniedOffer = myUserDAO.getUserById(offerRefused.getBuyer().getIdUser());
 		
-		if(offerRefused.getBuyer().getIdUser() == myUser.getIdUser())
-		{
+		 if(offerRefused.getAdv().getOwner().getIdUser() == myUser.getIdUser())		
+		 {
 			adRefusingOffer.removeOffer(offerRefused);
 			userDeniedOffer.removeProposition(offerRefused);
 			offerRefused.setAdv(null);
@@ -322,15 +334,9 @@ public class MainController
 		if (testConnection() == false)
 			return null;
 		
-		ArrayList<Offer> myArrayToReturn = new ArrayList<Offer>();
-		
-		for (int loop : myUserDAO.getUserListOffer(myUser))
-		{
-			Offer myOf = myOfDAO.getOfferById(loop);
-			myArrayToReturn.add(myOf);
-		}
-		return myArrayToReturn;
+		return myUserDAO.getUserListOffer(myUser);
 	}
+	
 	
 	/**
 	 * Gets the my user.
