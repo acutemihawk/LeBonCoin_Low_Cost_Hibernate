@@ -120,6 +120,7 @@ public class UserDAO
         		else
         			return null;
         	}
+        	
      		System.out.println("could not get User List Propositions");
      		return null;
 		}

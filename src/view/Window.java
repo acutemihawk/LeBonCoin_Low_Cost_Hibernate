@@ -98,6 +98,7 @@ public class Window
 			else
 			{
 				System.out.println("You have chosen the ultimate choice, now go back to the main menu!");
+				mainController.disconnect();
 				mainMenu();
 			}
 		}
@@ -147,11 +148,13 @@ public class Window
 			}
 			else if(option_number == 5)
 			{
+				mainController.disconnect();
 				mainMenu();
 			}
 			else
 			{
 				System.out.println("You have chosen the ultimate choice, now go back to the main menu!");
+				mainController.disconnect();
 				mainMenu();
 			}
 		}
@@ -170,10 +173,10 @@ public class Window
 	 */
 	public void browse()
 	{
-		ArrayList<String> categoriesArray = new ArrayList<String>();
+		List<String> categoriesArray = new ArrayList<String>();
 		int numberToDisplay = 0;
 		
-		//categoriesArray = mainController.getMyAdvDAO().getCategories();
+		categoriesArray = mainController.getMyAdvDAO().getCategories();
 		
 		System.out.println("----------------------------------------------------------------------");
 		System.out.println("Choose one option from below and press Enter to navigate :");
@@ -200,7 +203,11 @@ public class Window
 				if(mainController.getMyUser().isConnected())
 					connectedUser();
 				else
+				{
+					mainController.disconnect();
 					mainMenu();
+
+				}
 			}
 			else if(option_number > 2 && option_number <= categoriesArray.size()+2)
 			{
@@ -209,6 +216,7 @@ public class Window
 			else
 			{
 				System.out.println("You have chosen the ultimate choice, now go back to the main menu!");
+				mainController.disconnect();
 				mainMenu();
 			}
 		}
@@ -286,18 +294,26 @@ public class Window
             System.out.println("Maximum price:");
             maxPrice = myScanner.nextFloat();
             
-            advertismentList = mainController.getMyAdvDAO().search(category, minPrice, maxPrice, localisation);
-            
             System.out.println("----------------------------------------------------------------------");
     		System.out.println("Choose one option from below and press Enter to navigate :");
     		System.out.println("1 - Make an offer");
     		System.out.println("2 - Return");
     		
-            for( Advertisment advTmp : advertismentList)
+            advertismentList = mainController.getMyAdvDAO().search(category, minPrice, maxPrice, localisation);
+            
+            if (advertismentList != null)
             {
-            	System.out.println(numberToDisplay+" - "+advTmp.getTitre()+" "+advTmp.getPrice()+" ("+advTmp.getIdAdvertisment()+") ");
-            	numberToDisplay++;
+                for( Advertisment advTmp : advertismentList)
+                {
+                	System.out.println(numberToDisplay+" - "+advTmp.getTitre()+" "+advTmp.getPrice()+" ("+advTmp.getIdAdvertisment()+") ");
+                	numberToDisplay++;
+                }
             }
+            else
+            {
+            	System.out.println("No results found");
+            }
+
             System.out.println("----------------------------------------------------------------------");
             
             option_number = myScanner.nextInt();
@@ -312,6 +328,7 @@ public class Window
 				else
 				{
 					System.out.println("Error: You need to be connected to make an offer.");
+					mainController.disconnect();
 					mainMenu();
 				}
 			}
@@ -326,6 +343,7 @@ public class Window
 			else
 			{
 				System.out.println("You have chosen the ultimate choice, now go back to the main menu!");
+				mainController.disconnect();
 				mainMenu();
 			}
         }
@@ -392,6 +410,7 @@ public class Window
 			else
 			{
 				System.out.println("You have chosen the ultimate choice, now go back to the main menu!");
+				mainController.disconnect();
 				mainMenu();
 			}
         }
@@ -433,6 +452,7 @@ public class Window
 			else
 			{
 				System.out.println("You have chosen the ultimate choice, now go back to the main menu!");
+				mainController.disconnect();
 				mainMenu();
 			}
         }
@@ -509,18 +529,21 @@ public class Window
 		
 		try
 		{
-	        List<Offer> myArrayList = new ArrayList<Offer>();
-	        myArrayList = mainController.getUserPropositions();
-	        
-	        for ( Offer propositionTmp : myArrayList )
+	        if(mainController.getUserPropositions().size() != 0)
 	        {
-	        	System.out.println("- You made a proposition for the advertisment : "+propositionTmp.getAdv().getIdAdvertisment()+" at the price of : "+propositionTmp.getNewPrice()+"$ ("+propositionTmp.getIdOffer()+")");;
+		        List<Offer> myArrayList = new ArrayList<Offer>();
+		        myArrayList = mainController.getUserPropositions();
+		        
+		        for ( Offer propositionTmp : myArrayList )
+		        {
+		        	System.out.println("- You made a proposition for the advertisment : "+propositionTmp.getAdv().getIdAdvertisment()+" at the price of : "+propositionTmp.getNewPrice()+"$ ("+propositionTmp.getIdOffer()+")");;
+		        }
+		        System.out.println("----------------------------------------------------------------------");
 	        }
-	        System.out.println("----------------------------------------------------------------------");
 		}
 		catch( NullPointerException myException)
 		{
-			System.out.println("You need to register to use this functionnality");
+			System.out.println("You have no current propositions");
 		}
 		
 		try
@@ -549,6 +572,7 @@ public class Window
 			else
 			{
 				System.out.println("You have chosen the ultimate choice, now go back to the main menu!");
+				mainController.disconnect();
 				mainMenu();
 			}
 		}
@@ -577,7 +601,7 @@ public class Window
 	        
 	        for (Offer receivedOffer : myArrayList)
 	        {
-	        	System.out.println("- You received an offer from : "+mainController.getMyUserDAO().getUserById(receivedOffer.getBuyer().getIdUser())
+	        	System.out.println("- You received an offer from : "+mainController.getMyUserDAO().getUserById(receivedOffer.getBuyer().getIdUser()).getUsername()
 	        			+ " on the advertisment : "+receivedOffer.getAdv().getIdAdvertisment()
 	        			+ " at the price of : "+receivedOffer.getNewPrice()+"$"
 	        			+ " ("+receivedOffer.getIdOffer()+") ");
@@ -627,7 +651,7 @@ public class Window
 		}
 		catch(Exception myException)
 		{
-			myException.getMessage();
+			System.out.println("You have not received any offer at the moment");
 		}
 	}
 	
@@ -659,6 +683,10 @@ public class Window
 		catch(InputMismatchException myException)
 		{
 			System.out.println("The argument you entered is invalid");
+		}
+		catch(NullPointerException myException)
+		{
+			System.out.println("The advertisment you wish to purchase doesn't exist");
 		}
 	}
 	
@@ -714,6 +742,7 @@ public class Window
 			else
 			{
 				System.out.println("You have chosen the ultimate choice, now go back to the main menu!");
+				mainController.disconnect();
 				mainMenu();
 			}
         }

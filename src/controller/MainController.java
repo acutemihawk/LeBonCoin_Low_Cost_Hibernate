@@ -60,6 +60,8 @@ public class MainController
 			if(myUserDAO.getUserById(id) != null)
 			{
 				myUser = myUserDAO.getUserById(id);
+				myUser.setConnected(true);
+
 				if(myAdvDAO.getUserAdvertisments(myUser.getIdUser()) != null )
 				{
 					System.out.println(myAdvDAO.getUserAdvertisments(myUser.getIdUser()).get(0).getIdAdvertisment());
@@ -70,11 +72,8 @@ public class MainController
 					System.out.println(myUserDAO.getUserListPropositions(myUser).get(0).getIdOffer());
 					myUser.setListProposition(myUserDAO.getUserListPropositions(myUser));
 				}
-				//MERGE
 				myUser = myUserDAO.mergeUser(myUser);
 				
-			 	//myUser.setListAdvertisment(myAdvDAO.getUserAdvertisments(myUser.getIdUser()));
-				myUser.setConnected(true);
 				return true;
 			}
 			else
@@ -99,7 +98,7 @@ public class MainController
 			myUserTmp.setUsername(username);
 			myUserTmp.setPassword(password);
 			myUserTmp.setMail(mail);
-			System.out.println("DANS CREATE");
+			
 			if(myUserDAO.insertUser(myUserTmp) == true)
 			{
 				System.out.println("User successfully created");
@@ -262,9 +261,7 @@ public class MainController
         if(offerAccepted.getAdv().getOwner().getIdUser() == myUser.getIdUser())		
         {
 			advSold.removeOffer(offerAccepted);
-			//return ( myAdvDAO.deleteAd(advSold) == true && myOfDAO.deleteAllProposition(offerAccepted) == true );
-			return false;
-	
+			return ( myAdvDAO.deleteAd(advSold.getIdAdvertisment()) == true && myOfDAO.deleteAllProposition(offerAccepted) == true );
 		}
 		else 
 		{
