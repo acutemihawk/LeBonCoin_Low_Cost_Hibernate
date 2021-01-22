@@ -1,12 +1,8 @@
 package controller;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.persistence.*;
 
-import model.Advertisment;
 import model.Offer;
 
 // TODO: Auto-generated Javadoc
@@ -24,8 +20,16 @@ public class OfferDAO
 	 */
 	public OfferDAO()
 	{
-		emf  = Persistence.createEntityManagerFactory("Test");
-        em = emf.createEntityManager() ;
+		try
+		{
+			emf  = Persistence.createEntityManagerFactory("Test");
+	        em = emf.createEntityManager() ;
+		}
+		catch (PersistenceException e) 
+		{
+            System.out.println("Could not connect to Database");
+            System.exit(1);
+        }
 	}
 	
 	/**

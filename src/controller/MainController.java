@@ -61,6 +61,19 @@ public class MainController
 			{
 				myUser = myUserDAO.getUserById(id);
 				myUser.setConnected(true);
+
+				if(myAdvDAO.getUserAdvertisments(myUser.getIdUser()) != null )
+				{
+					System.out.println(myAdvDAO.getUserAdvertisments(myUser.getIdUser()).get(0).getIdAdvertisment());
+					myUser.setListAdvertisment(myAdvDAO.getUserAdvertisments(myUser.getIdUser()));
+				}
+				if(myUserDAO.getUserListPropositions(myUser) != null )
+				{
+					System.out.println(myUserDAO.getUserListPropositions(myUser).get(0).getIdOffer());
+					myUser.setListProposition(myUserDAO.getUserListPropositions(myUser));
+				}
+				myUser = myUserDAO.mergeUser(myUser);
+				
 				return true;
 			}
 			else
@@ -85,7 +98,7 @@ public class MainController
 			myUserTmp.setUsername(username);
 			myUserTmp.setPassword(password);
 			myUserTmp.setMail(mail);
-			System.out.println("DANS CREATE");
+			
 			if(myUserDAO.insertUser(myUserTmp) == true)
 			{
 				System.out.println("User successfully created");
@@ -156,11 +169,8 @@ public class MainController
 		if (testConnection() == false)
 			return false;
 		
-		Advertisment advToRemove = myAdvDAO.getAdvertismentById(idAdv);
-		advToRemove.setOwner(null);
-		myUser.removeAdvertisment(advToRemove);
 		
-		if(myAdvDAO.deleteAd(advToRemove) == true)
+		if(myAdvDAO.deleteAd(idAdv) == true)
 			return true;
 		else 
 			return false;
@@ -248,11 +258,10 @@ public class MainController
 		
         Advertisment advSold = myAdvDAO.getAdvertismentById(offerAccepted.getAdv().getIdAdvertisment());
         
-        if(offerAccepted.getAdv().getOwner().getIdUser() == myUser.getIdUser())
-		{
+        if(offerAccepted.getAdv().getOwner().getIdUser() == myUser.getIdUser())		
+        {
 			advSold.removeOffer(offerAccepted);
-			return ( myAdvDAO.deleteAd(advSold) == true && myOfDAO.deleteAllProposition(offerAccepted) == true );
-	
+			return ( myAdvDAO.deleteAd(advSold.getIdAdvertisment()) == true && myOfDAO.deleteAllProposition(offerAccepted) == true );
 		}
 		else 
 		{
@@ -277,8 +286,8 @@ public class MainController
 		Advertisment adRefusingOffer = myAdvDAO.getAdvertismentById(offerRefused.getAdv().getIdAdvertisment());
 		User userDeniedOffer = myUserDAO.getUserById(offerRefused.getBuyer().getIdUser());
 		
-		if(offerRefused.getAdv().getOwner().getIdUser() == myUser.getIdUser())
-		{
+		 if(offerRefused.getAdv().getOwner().getIdUser() == myUser.getIdUser())		
+		 {
 			adRefusingOffer.removeOffer(offerRefused);
 			userDeniedOffer.removeProposition(offerRefused);
 			offerRefused.setAdv(null);
@@ -324,6 +333,7 @@ public class MainController
 		
 		return myUserDAO.getUserListOffer(myUser);
 	}
+	
 	
 	/**
 	 * Gets the my user.

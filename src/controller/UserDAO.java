@@ -23,8 +23,16 @@ public class UserDAO
 	 */
 	public UserDAO()
 	{
-		emf  = Persistence.createEntityManagerFactory("Test");
-        em = emf.createEntityManager() ;
+		try
+		{
+			emf  = Persistence.createEntityManagerFactory("Test");
+	        em = emf.createEntityManager() ;
+		}
+		catch (PersistenceException e) 
+		{
+            System.out.println("Could not connect to Database");
+            System.exit(1);
+        }
 	}
 
 	
@@ -105,8 +113,14 @@ public class UserDAO
 			User userTmp = em.find(User.class, myUser.getIdUser());
         	if(userTmp != null)
         	{
-        		return userTmp.getListProposition();
+        		if ( userTmp.getListProposition().size() != 0)
+        		{
+            		return userTmp.getListProposition();
+        		}
+        		else
+        			return null;
         	}
+        	
      		System.out.println("could not get User List Propositions");
      		return null;
 		}
@@ -212,9 +226,32 @@ public class UserDAO
 		{
 			User userToFind = em.find(User.class,idUser);
 			if(userToFind != null)
+			{
 				return userToFind;
+			}
 			else
 				return null;
+		}
+		catch (PersistenceException e)
+		{
+			em.getTransaction().rollback();
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
+	
+	/**
+	 * Gets the user corresponding to the User id given in parameter
+	 *
+	 * @param idUser the id of the user
+	 * @return the user
+	 */
+	public User mergeUser(User userToMerge)
+	{
+		try
+		{
+			User mergedUser = em.merge(userToMerge);
+			return mergedUser;
 		}
 		catch (PersistenceException e)
 		{
