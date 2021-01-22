@@ -51,7 +51,7 @@ public class Advertisment
 	 * @param Ad_price the ad price
 	 * @param Ad_desc the ad desc
 	 */
-	public Advertisment(long idOwn, String Ad_titre, String Ad_category, String Ad_localisation, float Ad_price, String Ad_desc)
+	public Advertisment( String Ad_titre, String Ad_category, String Ad_localisation, float Ad_price, String Ad_desc)
 	{
 		titre = Ad_titre;
 		category = Ad_category;
@@ -218,12 +218,12 @@ public class Advertisment
 		this.owner = owner;
 	}
 	
-	public void addAdvertisment(Offer a)
+	public void addOffer(Offer a)
 	{
 		listMyOffer.add(a);
 	}
 	
-	public void removeAdvertisment(Offer a)
+	public void removeOffer(Offer a)
 	{
 		listMyOffer.remove(a);
 	}

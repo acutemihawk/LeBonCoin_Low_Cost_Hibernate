@@ -1,6 +1,7 @@
 package controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import model.*;
 
@@ -52,22 +53,19 @@ public class MainController
 	 */
 	public boolean userConnect(String username, String password)
 	{
-		Database myBdd = new Database();
-		myBdd.connect();
-		
-		if(myBdd.authentificate(username, password) == true)
+		long id = myUserDAO.authentificate(username, password);
+
+		if(id != 0)
 		{
-			myUser.setUsername(username);
-			myUser.setPassword(password);
-			myUser.setIdUser(myUserDAO.getUserId(myUser));
-			//myUser.setListAdvertisment(myUserDAO.getUserListAdv(myUser));
-			//myUser.setListOffer(myUserDAO.getUserListPropositions(myUser));
-			myUser.setMail(myUserDAO.getUserMail(myUser));
-			myUser.setConnected(true);
-			myBdd.disconnect();
-			return true;
+			if(myUserDAO.getUserById(id) != null)
+			{
+				myUser = myUserDAO.getUserById(id);
+				myUser.setConnected(true);
+				return true;
+			}
+			else
+				return false;
 		}
-		myBdd.disconnect();
 		return false;
 	}
 	
@@ -81,9 +79,6 @@ public class MainController
 	 */
 	public boolean createAccount(String username,String password, String mail)
 	{
-		Database myBdd = new Database();
-		myBdd.connect();
-		
 		if(myUserDAO.usernameInputChecker(username) == true && myUserDAO.mailInputChecker(mail) == true)
 		{
 			User myUserTmp = new User();
@@ -93,7 +88,6 @@ public class MainController
 			
 			if(myUserDAO.insertUser(myUserTmp) == true)
 			{
-				myBdd.disconnect();
 				System.out.println("User successfully created");
 				return true;
 			}
@@ -101,11 +95,9 @@ public class MainController
 				return false;
 		}
 		else
-		{
-			myBdd.disconnect();
-			return false;	
-		}
+			return false;
 	}
+
 	
 	/**
 	 * Creates and adds an advertisment on the website, the owner is the user calling the method
@@ -128,20 +120,19 @@ public class MainController
             return false;
         }
 		
-		myAdv.setTitre(titre);
-		myAdv.setCategory(category);
-		myAdv.setDescription(description);
-		//myAdv.setIdOwner(myUser.getIdUser());
-		myAdv.setPrice(price);
-		myAdv.setLocalisation(localisation);
+		Advertisment myAdvTmp = new Advertisment();
+
+		myAdvTmp.setTitre(titre);
+		myAdvTmp.setCategory(category);
+		myAdvTmp.setDescription(description);
+		myAdvTmp.setPrice(price);
+		myAdvTmp.setLocalisation(localisation);
 		
-		if (myAdvDAO.insertAd(myAdv) == true)
-		{
-			myAdv.setIdAdvertisment(myAdvDAO.getLastID()); 
-			//myUser.getListAdvertisment().add((int) myAdv.getIdAdvertisment());
-			System.out.println("Advertisment successfully created");
+		myUser.addAdvertisment(myAdvTmp);
+		myAdvTmp.setOwner(myUser);
+		
+		if(myAdvDAO.insertAd(myAdvTmp) == true)
 			return true;
-		}
 		else
 			return false;
 	}
@@ -152,23 +143,20 @@ public class MainController
 	 * @param idAdvToDel the id adv to del
 	 * @return true, if successful
 	 */
-	@SuppressWarnings("unlikely-arg-type")
-	public boolean delUserAdvertisment(long idAdvToDel)
+	public boolean delUserAdvertisment(long idAdv)
 	{
 		if (testConnection() == false)
 			return false;
 		
-		Advertisment myAdvToDel = new Advertisment();
-		myAdvToDel.setIdAdvertisment(idAdvToDel);
-		if(myAdvDAO.deleteAd(myAdvToDel) == true)
-		{
-			if(myUser.getListAdvertisment().remove(myAdvToDel.getIdAdvertisment()) == false)
-				return true;
-			else
-				return false;
-		}
-		else
+		Advertisment advToRemove = myAdvDAO.getAdvertismentById(idAdv);
+		advToRemove.setOwner(null);
+		myUser.removeAdvertisment(advToRemove);
+		
+		if(myAdvDAO.deleteAd(advToRemove) == true)
+			return true;
+		else 
 			return false;
+
 	}
 	
 	/**
@@ -189,26 +177,23 @@ public class MainController
 			return false;
 		}
 		
-		Advertisment adTmp = new Advertisment();
-		adTmp.setIdAdvertisment(idAdv);
-		if(myAdvDAO.verify(adTmp) == false)
-			return false;
+		Advertisment advProposedTo = myAdvDAO.getAdvertismentById(idAdv);
+		Offer propositionFromUser = new Offer();
+		propositionFromUser.setNewPrice(newPrice);
 		
-		Offer Offer = new Offer();
-		Offer.setIdAdvertisment(idAdv);
-		Offer.setNewPrice(newPrice);
-		Offer.setIdBuyer(myUser.getIdUser());
+		myUser.addProposition(propositionFromUser);
+		propositionFromUser.setBuyer(myUser);
 		
-		/*if(myOfDAO.insertInformation(Offer) == true) 
+		
+		advProposedTo.addOffer(propositionFromUser);
+		propositionFromUser.setAdv(advProposedTo);
+		
+		
+		if(myOfDAO.insertOf(propositionFromUser) == true) 
 		{
-			Offer.setIdOffer(myOfDAO.getLastOfferID());
-			//myUser.getListOffer().add((int) Offer.getIdOffer());
-			myOfDAO.insertOf(Offer);
-			
-			System.out.println("Offer successfully created !");
 			return true;
 		}
-		else*/
+		else
 			return false;
 	}
 
@@ -222,21 +207,19 @@ public class MainController
     {
         if (testConnection() == false)
             return false;
-
-        Offer offerToDel = new Offer();
-        offerToDel.setIdOffer(idOffer);
+        
+        Offer offerToDel = myOfDAO.getOfferById(idOffer);
+        Advertisment advProposedTo = myAdvDAO.getAdvertismentById(offerToDel.getAdv().getIdAdvertisment());
+        
+		myUser.removeProposition(offerToDel);
+		offerToDel.setBuyer(null);
+		
+		advProposedTo.removeOffer(offerToDel);
+		offerToDel.setAdv(null);
+        
         if(myOfDAO.deleteOf(offerToDel) == true)
         {
-           /* for (Integer loop : myUser.getListOffer())
-            {
-                if (loop ==offerToDel.getIdOffer())
-                {    
-                    myUser.getListOffer().remove(loop);
-                    return true;
-                }
-                else
-                    return false;
-            }*/
+        	return true;
         }
         return false;
     }
@@ -253,21 +236,23 @@ public class MainController
 		if (testConnection() == false)
 			return false;
 		
-		myOffer.setIdOffer(idOffer);
+		Offer offerAccepted = myOfDAO.getOfferById(idOffer);
 		
-		/*for (Integer loop : myUser.getListAdvertisment() )
+        Advertisment advSold = myAdvDAO.getAdvertismentById(offerAccepted.getAdv().getIdAdvertisment());
+        
+		if(offerAccepted.getBuyer().getIdUser() == myUser.getIdUser())
 		{
-			if(loop == (myOfDAO.getAdvID(myOffer)))
-			{
-				Advertisment advToDel = new Advertisment();
-				advToDel.setIdAdvertisment(myOfDAO.getAdvID(myOffer));
-				myOffer.setIdAdvertisment(myOfDAO.getAdvID(myOffer));
-				return myOfDAO.deleteAllOffer(myOffer) && myAdvDAO.deleteAd(advToDel);
-			}
-		}*/
-		System.out.println("Please accept an offer that is addressed to you ");
-		return false;	
-}
+			advSold.removeOffer(offerAccepted);
+			return ( myAdvDAO.deleteAd(advSold) == true && myOfDAO.deleteAllProposition(offerAccepted) == true );
+	
+		}
+		else 
+		{
+			System.out.println("Please accept an offer that is addressed to you ");
+			return false;	
+		}
+	}
+
 	
 	/**
 	 * Refuse an offer made by a user on an advertisment
@@ -277,24 +262,31 @@ public class MainController
 	 */
 	public boolean refuseOffer(long idOffer)
 	{
-		/* delete dans la liste des propistion recues de l'advertisment mais aussi delte dans la liste des propistions du user */
 		if (testConnection() == false)
 			return false;
 		
-		Offer offerToDel = new Offer();
-		offerToDel.setIdOffer(idOffer);
-		offerToDel.setIdBuyer(myOfDAO.getUserID(offerToDel));
-
-		/*for (Integer loop : myUser.getListAdvertisment() )
-		{
-			if(loop == (myOfDAO.getAdvID(offerToDel)))
-			{
-				return myOfDAO.deleteOf(offerToDel);
-			}
-		}*/
+		Offer offerRefused = myOfDAO.getOfferById(idOffer);
+		Advertisment adRefusingOffer = myAdvDAO.getAdvertismentById(offerRefused.getAdv().getIdAdvertisment());
+		User userDeniedOffer = myUserDAO.getUserById(offerRefused.getBuyer().getIdUser());
 		
-		System.out.println("Please accept an offer that is addressed to you ");
-		return false;
+		if(offerRefused.getBuyer().getIdUser() == myUser.getIdUser())
+		{
+			adRefusingOffer.removeOffer(offerRefused);
+			userDeniedOffer.removeProposition(offerRefused);
+			offerRefused.setAdv(null);
+			
+			if(myOfDAO.deleteOf(offerRefused) == true)
+				return true;
+			else
+				return false;
+			
+		}
+		else
+		{
+			System.out.println("Please accept an offer that is addressed to you ");
+			return false;
+		}
+
 	}
 	
 	/**
@@ -302,22 +294,13 @@ public class MainController
 	 *
 	 * @return the user propositions
 	 */
-	public ArrayList<Offer> getUserPropositions()
+	public List<Offer> getUserPropositions()
 	{
 		if (testConnection() == false)
 			return null;
 		
-		ArrayList<Offer> myArrayToReturn = new ArrayList<Offer>();
-		
-		/*for (int tmp : myUser.getListOffer())
-		{
-			Offer Of = new Offer();
-			Of.setIdOffer(tmp);
-			Of.setIdAdvertisment(myOfDAO.getAdvID(Of));
-			Of.setNewPrice(myOfDAO.getNewPrice(Of));
-			myArrayToReturn.add(Of);
-		}*/
-		return myArrayToReturn;
+		return myUserDAO.getUserListPropositions(myUser);
+
 	}
 	
 	/**
@@ -326,22 +309,18 @@ public class MainController
 	 * @return the user received offer
 	 */
 	/* renvoie une listes des offre recues par l'uitlisateurs */
-	public ArrayList<Offer> getUserReceivedOffer()
+	public List<Offer> getUserReceivedOffer()
 	{
 		if (testConnection() == false)
 			return null;
 		
 		ArrayList<Offer> myArrayToReturn = new ArrayList<Offer>();
 		
-		/*for (int loop : myUserDAO.getUserListOffer(myUser))
+		for (int loop : myUserDAO.getUserListOffer(myUser))
 		{
-			Offer myOf = new Offer();
-			myOf.setIdOffer(loop);
-			myOf.setIdAdvertisment(myOfDAO.getAdvID(myOf));
-			myOf.setNewPrice(myOfDAO.getNewPrice(myOf));
-			myOf.setIdBuyer(myOfDAO.getUserID(myOf));
+			Offer myOf = myOfDAO.getOfferById(loop);
 			myArrayToReturn.add(myOf);
-		}*/
+		}
 		return myArrayToReturn;
 	}
 	

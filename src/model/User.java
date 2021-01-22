@@ -35,7 +35,7 @@ public class User
 	
 	/** The list offer. */
 	@OneToMany(mappedBy ="buyer",cascade = CascadeType.ALL)
-	private List<Offer> listOffer;
+	private List<Offer> listProposition;
 	
 
 	@Transient
@@ -56,7 +56,7 @@ public class User
 		this.username = username;
 		this.mail = mail;
 		listAdvertisment = new ArrayList<Advertisment>();
-		listOffer = new ArrayList<Offer>();
+		listProposition = new ArrayList<Offer>();
 	}
 	
 	/**
@@ -65,7 +65,7 @@ public class User
 	public User()
 	{
 		listAdvertisment = new ArrayList<Advertisment>();
-		listOffer = new ArrayList<Offer>();
+		listProposition = new ArrayList<Offer>();
 	}
 	
 	/**
@@ -173,9 +173,9 @@ public class User
 	 *
 	 * @return the list offer
 	 */
-	public List<Offer> getListOffer() 
+	public List<Offer> getListProposition() 
 	{
-		return listOffer;
+		return listProposition;
 	}
 	
 	/**
@@ -183,19 +183,19 @@ public class User
 	 *
 	 * @param listOffer the new list offer
 	 */
-	public void setListOffer(ArrayList<Offer> listOffer) 
+	public void setListProposition(List<Offer> listOffer) 
 	{
-		this.listOffer = listOffer;
+		this.listProposition = listOffer;
 	}
 	
 	public void addProposition(Offer a)
 	{
-		listOffer.add(a);
+		listProposition.add(a);
 	}
 	
 	public void removeProposition(Offer a)
 	{
-		listOffer.remove(a);
+		listProposition.remove(a);
 	}
 	
 	public void addAdvertisment(Advertisment a)

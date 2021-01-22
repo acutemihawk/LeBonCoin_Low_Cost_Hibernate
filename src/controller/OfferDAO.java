@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.persistence.*;
 
-
+import model.Advertisment;
 import model.Offer;
 
 // TODO: Auto-generated Javadoc
@@ -86,7 +86,7 @@ public class OfferDAO
 	 * @return true, if successful
 	 */
 	/* supprimes toutes les propositions sur l'id de l'annonce passé en parametre */
-	public boolean deleteAllOffer(Offer Of)
+	public boolean deleteAllProposition(Offer Of)
 	{
 		try
 		{
@@ -109,6 +109,25 @@ public class OfferDAO
             return false;
         }
 	}	
+	
+	public Offer getOfferById(long idOffer)
+	{
+		try
+		{
+			Offer offerToFind = em.find(Offer.class,idOffer);
+			
+			if(offerToFind != null)
+				return offerToFind;
+			else
+				return null;
+		}
+		catch (PersistenceException e)
+		{
+			em.getTransaction().rollback();
+			System.out.println(e.getMessage());
+			return null;
+		}
+	}
 	
 
 	public EntityManager getMyEntityManager() 

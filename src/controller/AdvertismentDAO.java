@@ -1,9 +1,14 @@
 package controller;
 
-import java.sql.*;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.*;
+
 
 import model.Advertisment;
+import model.User;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -11,6 +16,18 @@ import model.Advertisment;
  */
 public class AdvertismentDAO
 {
+	
+	private EntityManager em;
+	private EntityManagerFactory emf;
+	
+	/**
+	 * Instantiates a new user DAO.
+	 */
+	public AdvertismentDAO()
+	{
+		emf  = Persistence.createEntityManagerFactory("Test");
+        em = emf.createEntityManager();
+	}
 	
 	/**
 	 * Insert an advertisment into the database.
@@ -20,30 +37,18 @@ public class AdvertismentDAO
 	 */
 	public boolean insertAd(Advertisment ad)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		
 		try
 		{
-			String sqlCommand = "INSERT INTO advertisment (titre, localisation, price,description,category,iduser) VALUES (?,?,?,?,?,?)";
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setString(1, ad.getTitre());
-			myStatement.setString(2, ad.getLocalisation());
-			myStatement.setFloat(3, ad.getPrice());
-			myStatement.setString(4, ad.getDescription());
-			myStatement.setString(5, ad.getCategory());
-			//myStatement.setLong(6, ad.getIdOwner());
-			myStatement.executeUpdate();
-			
-			myStatement.close();
-			myDB.disconnect();
+			em.getTransaction().begin();
+			em.persist(ad);
+			em.getTransaction().commit();
 			
 			return true;
 		}
-		catch (SQLException e)
+		catch (PersistenceException e)
 		{
+			em.getTransaction().rollback();
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return false;
 		}
 	}
@@ -56,61 +61,43 @@ public class AdvertismentDAO
 	 */
 	public boolean deleteAd(Advertisment ad)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		
 		try
 		{
-			String sqlCommand = "DELETE FROM advertisment WHERE IdAdvertisment=?";
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setLong(1, ad.getIdAdvertisment());
-			myStatement.executeUpdate();
+			em.getTransaction().begin();
 			
-			myStatement.close();
-			myDB.disconnect();	
+			Advertisment adToRemove = (Advertisment) em.find(Advertisment.class, ad.getIdAdvertisment());
+			Advertisment mergedAdv = em.merge(adToRemove);
+			String hql = "Delete from Advertisment where idAdvertisment = ?1";
+			Query query = em.createQuery(hql);
+			query.setParameter(1, mergedAdv.getIdAdvertisment());
+			query.executeUpdate();
+			em.getTransaction().commit();
 			
 			return true;
 		}
-		catch (SQLException e)
+		catch (PersistenceException e)
 		{
+			em.getTransaction().rollback();
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return false;
 		}
 	}
 	
-	/**
-	 * Gets the ID of the last advertisment created
-	 *
-	 * @return the last ID
-	 */
-	public long getLastID()
+	public Advertisment getAdvertismentById(long idAdv)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		long id = 0;
-		
 		try
 		{
-			String sqlCommand = " SELECT idAdvertisment FROM advertisment ORDER BY idAdvertisment DESC ";
-			Statement myStatement = myConnection.createStatement();
-			
-			ResultSet rs  = myStatement.executeQuery(sqlCommand);
-			
-			if(rs.next())
-			{
-				id = rs.getInt(1);
-			}
-			
-			myStatement.close();
-			myDB.disconnect();
-			return id;
+			Advertisment advToFind = em.find(Advertisment.class,idAdv);
+			if(advToFind != null)
+				return advToFind;
+			else
+				return null;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e)
 		{
+			em.getTransaction().rollback();
 			System.out.println(e.getMessage());
-			myDB.disconnect();
-			return 0;
+			return null;
 		}
 	}
 	
@@ -123,44 +110,36 @@ public class AdvertismentDAO
 	 * @param localisation the localisation
 	 * @return the array list of advertisment
 	 */
-	public ArrayList<Advertisment> search(String category, float minPrice, float maxPrice,String localisation)
+	public List<Advertisment> search(String category, float minPrice, float maxPrice,String localisation)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
-		
 		try
 		{
-			//l'id, le titre, le prix, et le titre
-			String sqlCommand = "SELECT idAdvertisment,localisation,price,category,titre FROM advertisment WHERE LOWER(category) LIKE ? AND price > ? and price < ? AND LOWER(localisation) LIKE ? " ;
+			String Command = "SELECT idAdvertisment FROM Advertisment WHERE "
+				+ "LOWER(category) LIKE '" + "%"+category.toLowerCase()+"%" + "' AND "
+				+ "price > " + minPrice + " and price < " + maxPrice + " AND "
+				+ "LOWER(localisation) LIKE '" + "%"+localisation.toLowerCase()+"%'";
 			
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setString(4, "%"+localisation.toLowerCase()+"%");
-			myStatement.setString(1, "%"+category.toLowerCase()+"%");
-			myStatement.setFloat(2, minPrice);
-			myStatement.setFloat(3, maxPrice);
-			ResultSet myResultSet = myStatement.executeQuery();
+			List<BigInteger> myList = new ArrayList<BigInteger>();
+			List<Advertisment> myAdvList = new ArrayList<Advertisment>();
 			
-			while(myResultSet.next())
+			Query query = em.createNativeQuery(Command);
+			myList = query.getResultList();
+			
+			if(myList.size() != 0)
 			{
-				Advertisment myAdvToReturn = new Advertisment();
-				myAdvToReturn.setIdAdvertisment(myResultSet.getLong(1));
-				myAdvToReturn.setLocalisation(myResultSet.getString(2));	
-				myAdvToReturn.setPrice(myResultSet.getFloat(3));
-				myAdvToReturn.setCategory(myResultSet.getString(4));
-				myAdvToReturn.setTitre(myResultSet.getString(5));
-				myArrayList.add(myAdvToReturn);
+				for(BigInteger id : myList)
+				{
+					myAdvList.add(em.find(Advertisment.class, id.longValue()));
+				}
+				
+				return myAdvList;
 			}
 			
-			myStatement.close();
-			myDB.disconnect();
-
-			return myArrayList;
+			return null;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e)
 		{
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return null;
 		}
 	}
@@ -170,35 +149,30 @@ public class AdvertismentDAO
 	 *
 	 * @return the list of names
 	 */
-	public ArrayList<String> getCategories()
+	public List<String> getCategories()
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		
-		ArrayList<String> arrayToReturn = new ArrayList<String>();
+		List<String> myList = new ArrayList<String>();
 		
 		try
 		{
-			String sqlCommand = "SELECT DISTINCT category FROM advertisment";
-			Statement myStatement = myConnection.createStatement();
-			ResultSet rs  = myStatement.executeQuery(sqlCommand);
+			String sqlCommand = "SELECT DISTINCT category FROM Advertisment";
+			Query query = em.createQuery(sqlCommand);
+			myList = query.getResultList();
 			
-			while(rs.next())
-			{
-				arrayToReturn.add(rs.getString(1));
-			}				
+			if(myList.size() != 0)
+        	{
+        		return myList;
+        	}
 			
-			myStatement.close();
-			myDB.disconnect();
-			
-			return arrayToReturn;
+			System.out.println("could not get the list of categories");
+			return null;
 		}
-		catch (SQLException e) 
+		catch (PersistenceException e)
 		{
 			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return null;
-		}		
+		}
+		
 	}
 	
 	/**
@@ -207,42 +181,36 @@ public class AdvertismentDAO
 	 * @param category the name of the category
 	 * @return the list of advertisments
 	 */
-	public ArrayList<Advertisment> getAdvertismentsFromCategory(String category)
+	public List<Advertisment> getAdvertismentsFromCategory(String category)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
-		
 		try
 		{
-			String sqlCommand = "SELECT idAdvertisment,localisation,price,category,titre FROM advertisment WHERE LOWER(category) LIKE ?" ;
+			String command = "SELECT idAdvertisment FROM Advertisment WHERE LOWER(category) LIKE ?";
 			
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setString(1, "%"+category.toLowerCase()+"%");
-			ResultSet myResultSet = myStatement.executeQuery();
+			List<Long> myList = new ArrayList<Long>();
+			List<Advertisment> myAdvList = new ArrayList<Advertisment>();
 			
-			while(myResultSet.next())
+			Query query = em.createQuery(command).setParameter(0, category);
+			myList = query.getResultList();
+			
+			if(myList.size() != 0)
 			{
-				Advertisment myAdvToReturn = new Advertisment();
-				myAdvToReturn.setIdAdvertisment(myResultSet.getLong(1));
-				myAdvToReturn.setLocalisation(myResultSet.getString(2));	
-				myAdvToReturn.setPrice(myResultSet.getFloat(3));
-				myAdvToReturn.setCategory(myResultSet.getString(4));
-				myAdvToReturn.setTitre(myResultSet.getString(5));
-				myArrayList.add(myAdvToReturn);
+				for(long id : myList)
+				{
+					myAdvList.add(em.find(Advertisment.class, id));
+				}
+				
+				return myAdvList;
 			}
 			
-			myStatement.close();
-			myDB.disconnect();
-
-			return myArrayList;
-		}
-		catch (SQLException e) 
-		{
-			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return null;
 		}
+		catch (PersistenceException e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
+		
 	}
 	
 	/**
@@ -251,86 +219,34 @@ public class AdvertismentDAO
 	 * @param idUser the user id
 	 * @return the user advertisments
 	 */
-	public ArrayList<Advertisment> getUserAdvertisments(long idUser)
+	public List<Advertisment> getUserAdvertisments(long idUser)
 	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		ArrayList<Advertisment> myArrayList = new ArrayList<Advertisment>();
-		
 		try
 		{
-			String sqlCommand = "SELECT idAdvertisment,localisation,price,category,titre FROM advertisment WHERE iduser=?";
+			String command = "SELECT idAdvertisment FROM Advertisment WHERE iduser=?";
 			
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-			myStatement.setLong(1, idUser);
-			ResultSet myResultSet = myStatement.executeQuery();
+			List<Long> myList = new ArrayList<Long>();
+			List<Advertisment> myAdvList = new ArrayList<Advertisment>();
 			
-			while(myResultSet.next())
+			Query query = em.createQuery(command).setParameter(0, idUser);
+			myList = query.getResultList();
+			
+			if(myList.size() != 0)
 			{
-				Advertisment myAdvToReturn = new Advertisment();
-				myAdvToReturn.setIdAdvertisment(myResultSet.getLong(1));
-				myAdvToReturn.setLocalisation(myResultSet.getString(2));	
-				myAdvToReturn.setPrice(myResultSet.getFloat(3));
-				myAdvToReturn.setCategory(myResultSet.getString(4));
-				myAdvToReturn.setTitre(myResultSet.getString(5));
-				myArrayList.add(myAdvToReturn);
+				for(long id : myList)
+				{
+					myAdvList.add(em.find(Advertisment.class, id));
+				}
+				
+				return myAdvList;
 			}
 			
-			myStatement.close();
-			myDB.disconnect();
-
-			return myArrayList;
-		}
-		catch (SQLException e) 
-		{
-			System.out.println(e.getMessage());
-			myDB.disconnect();
 			return null;
 		}
-	}
-	
-	/**
-	 * Verify that the given advertisment exists in the database.
-	 *
-	 * @param ad the advertisment to check
-	 * @return true, if true
-	 */
-	public boolean verify(Advertisment ad) 
-	{
-		Database myDB = new Database();
-		Connection myConnection = myDB.connect();
-		
-		try
-		{
-			String sqlCommand = " SELECT COUNT(*) FROM advertisment where idAdvertisment=?";
-			
-			PreparedStatement myStatement = myConnection.prepareStatement(sqlCommand);
-			myStatement.setLong(1, ad.getIdAdvertisment());
-			ResultSet myResult  = myStatement.executeQuery();
-			
-			if(myResult.next() != false)
-			{
-				if(myResult.getInt(1) == 1)
-				{	
-					myDB.disconnect();
-					myStatement.close();
-					return true;
-				}
-				else
-				{
-					System.out.println("The advertisment does not exist");
-					myDB.disconnect();
-					myStatement.close();
-					return false;	
-				}
-			}
-			return false;
-		}
-		catch (SQLException e)
+		catch (PersistenceException e)
 		{
 			System.out.println(e.getMessage());
-			myDB.disconnect();
-			return false;
-		}	
+			return null;
+		}
 	}
 }
