@@ -587,28 +587,38 @@ public class Window
 	 */
 	public void displayUserReceivedOffer()
 	{
+		System.out.println("----------------------------------------------------------------------");
+		System.out.println("Choose one option from below and press Enter to navigate");
+		System.out.println("These are your currents offer :");
+		System.out.println("1 - Accept an offer");
+		System.out.println("2 - Refuse an offer");
+		System.out.println("3 - Return");
+		
 		try
 		{
-			System.out.println("----------------------------------------------------------------------");
-			System.out.println("Choose one option from below and press Enter to navigate");
-			System.out.println("These are your currents offer :");
-			System.out.println("1 - Accept an offer");
-			System.out.println("2 - Refuse an offer");
-			System.out.println("3 - Return");
-
-	        List<Offer> myArrayList = new ArrayList<Offer>();
-	        myArrayList = mainController.getUserReceivedOffer();
-	        
-	        for (Offer receivedOffer : myArrayList)
+	        if(mainController.getUserReceivedOffer().size() != 0)
 	        {
-	        	System.out.println("- You received an offer from : "+mainController.getMyUserDAO().getUserById(receivedOffer.getBuyer().getIdUser()).getUsername()
-	        			+ " on the advertisment : "+receivedOffer.getAdv().getIdAdvertisment()
-	        			+ " at the price of : "+receivedOffer.getNewPrice()+"$"
-	        			+ " ("+receivedOffer.getIdOffer()+") ");
+	        	List<Offer> myArrayList = new ArrayList<Offer>();
+		        myArrayList = mainController.getUserReceivedOffer();
+		        
+		        for (Offer receivedOffer : myArrayList)
+		        {
+		        	System.out.println("- You received an offer from : "+mainController.getMyUserDAO().getUserById(receivedOffer.getBuyer().getIdUser()).getUsername()
+		        			+ " on the advertisment : "+receivedOffer.getAdv().getIdAdvertisment()
+		        			+ " at the price of : "+receivedOffer.getNewPrice()+"$"
+		        			+ " ("+receivedOffer.getIdOffer()+") ");
+		        }
+		        
+		        System.out.println("----------------------------------------------------------------------");
 	        }
-	        
-	        System.out.println("----------------------------------------------------------------------");
-
+		}
+		catch( NullPointerException myException)
+		{
+			System.out.println("You have not received any offer at the moment");
+		}
+		
+		try
+		{
 			option_number = myScanner.nextInt();
 			
 			if(option_number == 1)
@@ -647,11 +657,6 @@ public class Window
 		catch(InputMismatchException myException)
 		{
 			System.out.println("The argument you entered is invalid");
-			
-		}
-		catch(Exception myException)
-		{
-			System.out.println("You have not received any offer at the moment");
 		}
 	}
 	
@@ -695,27 +700,38 @@ public class Window
 	 */
 	public void displayUserAdvertisments()
 	{
-		int numberToDisplay = 3;
+		int numberToDisplay = 4;
         
-       List<Advertisment> advertismentList = new ArrayList<Advertisment>();
+        List<Advertisment> advertismentList = new ArrayList<Advertisment>();
+        
+        System.out.println("----------------------------------------------------------------------");
+		System.out.println("Choose one option from below and press Enter to navigate :");
+		System.out.println("1 - Create an advertisment");
+		System.out.println("2 - Delete an advertisment");
+		System.out.println("3 - Return");
         
         try
         {
             advertismentList = mainController.getMyAdvDAO().getUserAdvertisments(mainController.getMyUser().getIdUser());
-            
-            System.out.println("----------------------------------------------------------------------");
-    		System.out.println("Choose one option from below and press Enter to navigate :");
-    		System.out.println("1 - Create an advertisment");
-    		System.out.println("2 - Delete an advertisment");
-    		System.out.println("3 - Return");
     		
-            for( Advertisment advTmp : advertismentList)
-            {
-            	System.out.println(numberToDisplay+" - "+advTmp.getTitre()+" "+advTmp.getPrice()+" ("+advTmp.getIdAdvertisment()+")");
-            	numberToDisplay++;
-            }
-            System.out.println("----------------------------------------------------------------------");
-            
+            if(advertismentList.size() != 0)
+	        {
+            	for( Advertisment advTmp : advertismentList)
+	            {
+	            	System.out.println(numberToDisplay+" - "+advTmp.getTitre()+" "+advTmp.getPrice()+" ("+advTmp.getIdAdvertisment()+")");
+	            	numberToDisplay++;
+	            }
+	            System.out.println("----------------------------------------------------------------------");
+	        }
+        }
+		catch( NullPointerException myException)
+		{
+			System.out.println("You have not received any offer at the moment");
+		}
+		
+        
+		try
+		{
             option_number = myScanner.nextInt();
             
             if(option_number == 1)
@@ -735,7 +751,7 @@ public class Window
 			{
 				connectedUser();
 			}
-			else if(option_number > 3 && option_number < advertismentList.size()+3)
+			else if(option_number > 3 && option_number <= advertismentList.size()+3)
 			{
 				displayAdvertisment(advertismentList.get(option_number-4));
 			}
