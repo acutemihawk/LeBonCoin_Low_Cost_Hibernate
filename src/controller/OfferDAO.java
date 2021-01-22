@@ -20,7 +20,7 @@ public class OfferDAO
 	private EntityManagerFactory emf;
 	
 	/**
-	 * Instantiates a new user DAO.
+	 * Instantiates a new Offer DAO.
 	 */
 	public OfferDAO()
 	{
@@ -52,15 +52,13 @@ public class OfferDAO
 		}
 	}
 	
-
 	
 	/**
-	 * Delete of.
+	 * Delete offer.
 	 *
-	 * @param Of the of
+	 * @param Of the offer
 	 * @return true, if successful
 	 */
-	/* delete de la table offre l'offre passée en parametre  */
 	public boolean deleteOf(Offer Of)
 	{
         try
@@ -80,17 +78,15 @@ public class OfferDAO
 	}
 	
 	/**
-	 * Delete all offer.
+	 * Delete all offers from the advertisment of the offer given in parameter.
 	 *
 	 * @param Of the of
 	 * @return true, if successful
 	 */
-	/* supprimes toutes les propositions sur l'id de l'annonce passé en parametre */
 	public boolean deleteAllProposition(Offer Of)
 	{
 		try
 		{
-	
 			em.getTransaction().begin();
             String hql = " DELETE from Offer o WHERE o.Adv.idAdvertisment = ?1";
             Query query = em.createQuery(hql);
@@ -110,6 +106,12 @@ public class OfferDAO
         }
 	}	
 	
+	/**
+	 * Get an offer by its id from the database
+	 *
+	 * @param idOffer the id of the offer
+	 * @return the offer
+	 */
 	public Offer getOfferById(long idOffer)
 	{
 		try

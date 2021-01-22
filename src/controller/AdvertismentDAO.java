@@ -21,7 +21,7 @@ public class AdvertismentDAO
 	private EntityManagerFactory emf;
 	
 	/**
-	 * Instantiates a new user DAO.
+	 * Instantiates a new Advertisment DAO.
 	 */
 	public AdvertismentDAO()
 	{
@@ -84,6 +84,13 @@ public class AdvertismentDAO
 		}
 	}
 	
+	
+	/**
+	 * Get an advertisment from the database.
+	 *
+	 * @param id the id of the Advertisment to get
+	 * @return the advertisment
+	 */
 	public Advertisment getAdvertismentById(long idAdv)
 	{
 		try

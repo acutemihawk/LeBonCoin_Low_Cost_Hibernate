@@ -17,6 +17,7 @@ public class UserDAO
 	@PersistenceContext(type = PersistenceContextType.TRANSACTION)
 	private EntityManager em;
 	private EntityManagerFactory emf;
+	
 	/**
 	 * Instantiates a new user DAO.
 	 */
@@ -25,7 +26,6 @@ public class UserDAO
 		emf  = Persistence.createEntityManagerFactory("Test");
         em = emf.createEntityManager() ;
 	}
-	
 
 	
 	public long authentificate(String username, String password)
@@ -53,7 +53,7 @@ public class UserDAO
 	
 	
 	/**
-	 * Gets the list of offer received of the user in parameters
+	 * Gets the list of offers received by the user in parameter
 	 *
 	 * @param myUser 
 	 * @return the user list offer
@@ -92,7 +92,7 @@ public class UserDAO
 	}
 	
 	/**
-	 * Gets the list of propositions of the user in parametres
+	 * Gets the list of propositions of the user in parameter
 	 *
 	 * @param myUser the my user
 	 * @return the user list propositions
@@ -116,6 +116,7 @@ public class UserDAO
 			return null;
 		}
 	}
+	
 	
 	/**
 	 * Insert the user in parameters into the database
@@ -142,7 +143,6 @@ public class UserDAO
 			System.out.println(e.getMessage());
 			return false;
 		}
-		
 	}
 	
 	
@@ -172,13 +172,13 @@ public class UserDAO
 		}
 	}
 	
+	
 	/**
 	 * Checks if the mail in parameters is not already taken by someone
 	 *
 	 * @param mail the mail
 	 * @return true if the mail is not used
 	 */
-	/* renvoie false si le nom username est deja utilisé, sinon vrai*/
 	public boolean mailInputChecker(String mail)
 	{
 		try
@@ -199,6 +199,13 @@ public class UserDAO
 		}
 	}
 	
+	
+	/**
+	 * Gets the user corresponding to the User id given in parameter
+	 *
+	 * @param idUser the id of the user
+	 * @return the user
+	 */
 	public User getUserById(long idUser)
 	{
 		try
