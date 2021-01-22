@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 
-import org.hibernate.annotations.Type;
-
 
 // TODO: Auto-generated Javadoc
 /**
@@ -13,7 +11,7 @@ import org.hibernate.annotations.Type;
  */
 @Entity
 public class Advertisment
-{
+{ 
 	
 	/** The id advertisment. */
 	@Id 
@@ -38,11 +36,11 @@ public class Advertisment
 	/** The list my offer. */
 	@OneToMany(mappedBy ="Adv",cascade = CascadeType.ALL)
 	private List<Offer> listMyOffer;
-	
+
 	@ManyToOne
 	@JoinColumn(name = "iduser")
 	private User owner;
-	
+
 	/**
 	 * Instantiates a new advertisment.
 	 *
@@ -53,7 +51,7 @@ public class Advertisment
 	 * @param Ad_price the ad price
 	 * @param Ad_desc the ad desc
 	 */
-	public Advertisment(String Ad_titre, String Ad_category, String Ad_localisation, float Ad_price, String Ad_desc)
+	public Advertisment( String Ad_titre, String Ad_category, String Ad_localisation, float Ad_price, String Ad_desc)
 	{
 		titre = Ad_titre;
 		category = Ad_category;
@@ -90,6 +88,7 @@ public class Advertisment
 	{
 		this.idAdvertisment = idAdvertisment;
 	}
+	
 	
 	/**
 	 * Gets the titre.
@@ -219,7 +218,15 @@ public class Advertisment
 		this.owner = owner;
 	}
 	
-
+	public void addOffer(Offer a)
+	{
+		listMyOffer.add(a);
+	}
+	
+	public void removeOffer(Offer a)
+	{
+		listMyOffer.remove(a);
+	}
 	
 	
 	

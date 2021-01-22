@@ -1,8 +1,8 @@
 package main;
 
-import javax.persistence.*;
-import javax.persistence.Persistence;
 
+
+import javax.persistence.Persistence;
 
 import controller.MainController;
 import view.*;
@@ -13,6 +13,7 @@ import view.*;
 // has to be removed it is just for testing
 import model.*;
 import controller.*;
+import java.util.List;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -31,57 +32,108 @@ public class Main
 		/*
 		Window myWindow = new Window();
 		myWindow.mainMenu();*/
+	
+		MainController m = new MainController();
+		
+		m.createAccount("david", "test", "test@gmail.com");
+		System.out.println(m.userConnect("david", "test"));
+		
 
-		/*EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("Test");
-        EntityManager entityManager = entityManagerFactory.createEntityManager();*/
+		System.out.println(m.addUserAdvertisment("blab", "blab", 50,"blab", "blab"));
+		System.out.println("APRES");
+		m.disconnect();
+		
+		m.createAccount("kaaris", "test", "mahoufal@gmail.com");
+		System.out.println(m.userConnect("kaaris", "test"));
+		System.out.println("HIHIHI");
+		System.out.println(m.getMyUser().getIdUser());
+		System.out.println(m.getMyUser().getMail());
+		System.out.println(m.getMyUser().getPassword());
+		System.out.println(m.getMyUser().getListAdvertisment());
+		System.out.println(m.getMyUser().getListProposition());
+		//System.out.println(m.getMyUser().getListAdvertisment().get(0).getIdAdvertisment());
+
+
+
+		//
+
+		
+
+
+		/*
+		System.out.println(m.delUserAdvertisment(2));
+		System.out.println(m.getMyUser().getListAdvertisment());*/
+
+		m.addUserProposition(2, 50);
+		m.addUserProposition(2, 700);
+		m.addUserProposition(2, 900);
+		//System.out.println(m.getMyUser().getListProposition());
+		//System.out.println(m.getUserPropositions().get(0).getIdOffer());
+		m.disconnect();
+
+		m.userConnect("david", "test");
 		
 		
-		Advertisment a = new Advertisment();
+		
+		//System.out.println(m.getUserReceivedOffer());
+		//System.out.println(m.getUserReceivedOffer().get(0).getIdOffer());
+		//System.out.println(m.delUserProposition(4));
+		
+		//System.out.println(m.acceptOffer(4));
+		
+		//System.out.println(m.refuseOffer(4));
+		
+	/*	Advertisment a = new Advertisment();
 		Advertisment b = new Advertisment();
+
+		Offer c = new Offer();
+		Offer d = new Offer();
 		User UserTest = new User();
 		UserTest.setPassword("test");
 		UserTest.setUsername("david");
 		UserTest.setMail("test@gmail.com");
 		
 		
-		a.setCategory("playstation");
-		a.setDescription("blabla description playstation");
-		a.setLocalisation("paris");
-		a.setTitre("azerty titre");
-		a.setPrice(40);
 		a.setOwner(UserTest);
-		
-		b.setCategory("xbox");
-		b.setDescription("blabla description xbox");
-		b.setLocalisation("tours");
-		b.setTitre("azerty titre2");
-		b.setPrice(50);
 		b.setOwner(UserTest);
 		
 		UserTest.addAdvertisment(a);
 		UserTest.addAdvertisment(b);
 		
-		AdvertismentDAO advDAO = new AdvertismentDAO();
+		c.setBuyer(UserTest);
+		d.setBuyer(UserTest);
 		
-		UserDAO myuserdao = new UserDAO();
+		UserTest.addProposition(d);
+		UserTest.addProposition(c);
 		
-		myuserdao.insertUser(UserTest);
+		c.setAdv(a);
+		d.setAdv(a);
+		a.addAdvertisment(c);
+		a.addAdvertisment(d);*/
 		
-		System.out.println(advDAO.getUserAdvertisments(3));
 		
-		//System.out.println(advDAO.getAdvertismentsFromCategory("xbox").get(0).getDescription());
+		//m.getMyUserDAO().insertUser(UserTest);
+		//System.out.println(m.userConnect("test", "david"));
 		
-		/*myuserdao.getMyEntityManager().getTransaction().begin();
-		UserTest.removeAdvertisment(a);
-		myuserdao.getMyEntityManager().getTransaction().commit();*/
+		//OfferDAO offerDAO = new OfferDAO();
+		//System.out.println(c.getBuyer().getIdUser());
+		//myDAO.getUserListOffer(UserTest);
+		//System.out.println(c.getIdOffer());
+		//offerDAO.deleteAllOffer(c);
 		
-		//System.out.println(advDAO.getCategories());
+	/*	Offer Of = new Offer();
+		Of.setBuyer(UserTest);
+		UserTest.addProposition(Of);
+		Of.getBuyer().setIdUser(myDAO.getUserId(UserTest));
+		Of.setAdv(a);
+		a.addAdvertisment(Of);
+		Of.setNewPrice(500);
 
-		//UserTest.addAdvertisment();
-		
-		//UserDAO myDAO = new UserDAO();
-		
-		//myDAO.insertUser(UserTest);
+		offerDAO.insertOf(Of);
+*/	
+		//myDAO.getUserListAdv(UserTest);
+		//myDAO.getUserListAdv(UserTest);
+
 		//myDAO.getUserListOffer(UserTest);
 		
 		//System.out.println(myDAO.getUserListAdv(UserTest).get(0).getIdAdvertisment());
@@ -89,5 +141,6 @@ public class Main
 		/*UserTest.setIdUser(myDAO.getUserId(UserTest));
 		
 		System.out.println(myDAO.getUserName(UserTest));*/
+		
 	}	
 }

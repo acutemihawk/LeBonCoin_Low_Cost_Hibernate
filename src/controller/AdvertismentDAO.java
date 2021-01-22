@@ -1,17 +1,14 @@
 package controller;
 
 import java.math.BigInteger;
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceException;
-import javax.persistence.Query;
+import javax.persistence.*;
+
 
 import model.Advertisment;
+import model.User;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -43,9 +40,10 @@ public class AdvertismentDAO
 		try
 		{
 			em.getTransaction().begin();
-			em.persist(ad);
+			Advertisment mergedAdv = em.merge(ad);
+			em.persist(mergedAdv);
 			em.getTransaction().commit();
-			
+
 			return true;
 		}
 		catch (PersistenceException e)
@@ -67,10 +65,15 @@ public class AdvertismentDAO
 		try
 		{
 			em.getTransaction().begin();
-			Advertisment adToRemove = (Advertisment) em.find(Advertisment.class, ad.getIdAdvertisment());
-			em.remove(adToRemove);
-			em.getTransaction().commit();
 			
+			Advertisment adToRemove = (Advertisment) em.find(Advertisment.class, ad.getIdAdvertisment());
+			Advertisment mergedAdv = em.merge(adToRemove);
+			String hql = "Delete from Advertisment where idAdvertisment = ?1";
+			Query query = em.createQuery(hql);
+			query.setParameter(1, mergedAdv.getIdAdvertisment());
+			query.executeUpdate();
+			em.getTransaction().commit();
+		
 			return true;
 		}
 		catch (PersistenceException e)
@@ -78,6 +81,24 @@ public class AdvertismentDAO
 			em.getTransaction().rollback();
 			System.out.println(e.getMessage());
 			return false;
+		}
+	}
+	
+	public Advertisment getAdvertismentById(long idAdv)
+	{
+		try
+		{
+			Advertisment advToFind = em.find(Advertisment.class,idAdv);
+			if(advToFind != null)
+				return advToFind;
+			else
+				return null;
+		}
+		catch (PersistenceException e)
+		{
+			em.getTransaction().rollback();
+			System.out.println(e.getMessage());
+			return null;
 		}
 	}
 	

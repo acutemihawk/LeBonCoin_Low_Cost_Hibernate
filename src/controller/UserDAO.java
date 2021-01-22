@@ -1,7 +1,8 @@
 package controller;
 
-import java.sql.*;
 import model.*;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import javax.persistence.*;
  */
 public class UserDAO 
 {
+	@PersistenceContext(type = PersistenceContextType.TRANSACTION)
 	private EntityManager em;
 	private EntityManagerFactory emf;
 	/**
@@ -23,83 +25,32 @@ public class UserDAO
 		emf  = Persistence.createEntityManagerFactory("Test");
         em = emf.createEntityManager() ;
 	}
+	
 
-	/**
-	 * Gets the id of the User in parameters
-	 *
-	 * @param myUser 
-	 * @return user id
-	 */
-	public long getUserId(User myUser)
+	
+	public long authentificate(String username, String password)
 	{
-		long id = -1;		
-		
+		long iduser = -1;
 		try
 		{
-			id = (long) emf.getPersistenceUnitUtil().getIdentifier(myUser);
-			return id;
+			String hql = "SELECT idUser from User WHERE username = ?1 AND password = ?2";
+			Query query = em.createQuery(hql);
+			query.setParameter(1, username);
+			query.setParameter(2, password);
+			iduser = (long)query.getSingleResult();
+			
+			if(iduser != -1)
+				return iduser;
+			
+			return iduser;
 		}
-		catch (PersistenceException e) 
-		{
-			System.out.println(e.getMessage());
-			return -1;
-		}
-	}
-	
-
-	
-	/**
-	 * Gets the username of the User in parameters
-	 *
-	 * @param myUser 
-	 * @return username
-	 * @throws Exception 
-	 */
-	public String getUserName(User myUser)
-    {
-        String name = "";
-        
-        try
-        {
-        	User userTmp = em.find(User.class, myUser.getIdUser());
-        	if(userTmp != null)
-        	{
-        		return userTmp.getUsername();
-        	}
-    		System.out.println("could not get Username");
-    		return name;      
-        }
 		catch (PersistenceException e) 
 		{
             System.out.println(e.getMessage());
-            return name;
+            return iduser;
         }
-    }
-	
-	/**
-	 * Gets the list of Advertisment of the user in parameters
-	 *
-	 * @param myUser 
-	 * @return a list of Advertisment
-	 */
-	public List<Advertisment> getUserListAdv(User myUser)
-	{
-		try
-		{
-			User userTmp = em.find(User.class, myUser.getIdUser());
-        	if(userTmp != null)
-        	{
-        		return userTmp.getListAdvertisment();
-        	}
-     		System.out.println("could not get User List Propositions");
-     		return null;
-		}
-		catch (PersistenceException e) 
-		{
-			System.out.println(e.getMessage());
-			return null;
-		}
 	}
+	
 	
 	/**
 	 * Gets the list of offer received of the user in parameters
@@ -108,35 +59,36 @@ public class UserDAO
 	 * @return the user list offer
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Integer> getUserListOffer(User myUser)
+	public List<Offer> getUserListOffer(User myUser)
 	{	
-		
-		List<Integer> resultList = new ArrayList<Integer>();
-
-		String SQL = "SELECT Offer.idOffer FROM Advertisment a INNER JOIN a.idAdvertisment Offer where a.owner=?1";
-		Query query = em.createQuery(SQL);
-		resultList = (List<Integer>)query.setParameter(1, myUser.getIdUser()).getResultList();
-		return resultList;
-		
-		/*List<Offer> myList1 = new ArrayList<Offer>();
-		
-		User userTmp = em.find(User.class, myUser.getIdUser());
-		
-		for (int i = 0; i < userTmp.getListAdvertisment().size(); i++)
+		try
 		{
-			for (int j = 0; j < userTmp.getListAdvertisment().get(i).getListMyOffer().size(); j++)
+			String command = "SELECT offer.idoffer FROM advertisment INNER JOIN OFFER ON advertisment.idAdvertisment= offer.idAdvertisment WHERE advertisment.iduser= ?";
+			
+			List<BigInteger> resultList = new ArrayList<BigInteger>();
+			List<Offer> myOfferList = new ArrayList<Offer>();
+			
+			
+			Query query = em.createNativeQuery(command).setParameter(1, myUser.getIdUser());
+			resultList = query.getResultList();
+			
+			if(resultList.size() != 0)
 			{
-				myList1.add(userTmp.getListAdvertisment().get(i).getListMyOffer().get(j));
+				for(BigInteger id : resultList)
+				{
+					myOfferList.add(em.find(Offer.class, id.longValue()));
+				}
+				
+				return myOfferList;
 			}
+			System.out.println("could not get User List Propositions");
+			return null;
 		}
-		return myList1;
-		
-		
-			String SQL = "SELECT offer.idoffer FROM advertisment "
-					+ "INNER JOIN OFFER ON advertisment.idAdvertisment= offer.idAdvertisment "
-					+ "INNER JOIN offerinfo USING(idoffer)"
-					+ " WHERE advertisment.iduser= ?"; */
-
+		catch (PersistenceException e)
+		{
+			System.out.println(e.getMessage());
+			return null;
+		}
 	}
 	
 	/**
@@ -153,7 +105,7 @@ public class UserDAO
 			User userTmp = em.find(User.class, myUser.getIdUser());
         	if(userTmp != null)
         	{
-        		return userTmp.getListOffer();
+        		return userTmp.getListProposition();
         	}
      		System.out.println("could not get User List Propositions");
      		return null;
@@ -163,33 +115,6 @@ public class UserDAO
 			System.out.println(e.getMessage());
 			return null;
 		}
-	}
-	
-	/**
-	 * Gets the user mail.
-	 *
-	 * @param myUser the my user
-	 * @return the user mail
-	 */
-	public String getUserMail(User myUser)
-	{
-        String mail = "";
-        
-        try
-        {
-        	User userTmp = em.find(User.class, myUser.getIdUser());
-        	if(userTmp != null)
-        	{
-        		return userTmp.getMail();
-        	}
-    		System.out.println("could not get Mail");
-    		return mail;      
-        }
-		catch (PersistenceException e) 
-		{
-            System.out.println(e.getMessage());
-            return mail;
-        }	
 	}
 	
 	/**
@@ -203,7 +128,11 @@ public class UserDAO
 		try
 		{
 			em.getTransaction().begin();
+			System.out.println("avant persist");
+
 			em.persist(userToCreate);
+			System.out.println("apres persist");
+
 			em.getTransaction().commit();
 			return true;
 		}
@@ -215,6 +144,7 @@ public class UserDAO
 		}
 		
 	}
+	
 	
 	/**
 	 * Checks if the username in parameters is not already taken by someone
@@ -266,6 +196,24 @@ public class UserDAO
 		{
 			System.out.println(e.getMessage());
 			return false;
+		}
+	}
+	
+	public User getUserById(long idUser)
+	{
+		try
+		{
+			User userToFind = em.find(User.class,idUser);
+			if(userToFind != null)
+				return userToFind;
+			else
+				return null;
+		}
+		catch (PersistenceException e)
+		{
+			em.getTransaction().rollback();
+			System.out.println(e.getMessage());
+			return null;
 		}
 	}
 

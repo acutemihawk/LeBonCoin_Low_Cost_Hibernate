@@ -5,6 +5,7 @@ package view;
 
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 import controller.*;
@@ -267,7 +268,7 @@ public class Window
         float minPrice = 0;
         float maxPrice = 0;
         
-        ArrayList<Advertisment> advertismentList = new ArrayList<Advertisment>();
+        List<Advertisment> advertismentList = new ArrayList<Advertisment>();
         
         try
         {
@@ -285,7 +286,7 @@ public class Window
             System.out.println("Maximum price:");
             maxPrice = myScanner.nextFloat();
             
-            //advertismentList = mainController.getMyAdvDAO().search(category, minPrice, maxPrice, localisation);
+            advertismentList = mainController.getMyAdvDAO().search(category, minPrice, maxPrice, localisation);
             
             System.out.println("----------------------------------------------------------------------");
     		System.out.println("Choose one option from below and press Enter to navigate :");
@@ -347,7 +348,7 @@ public class Window
 	{
 		int numberToDisplay = 3;
         
-        ArrayList<Advertisment> advertismentList = new ArrayList<Advertisment>();
+        List<Advertisment> advertismentList = new ArrayList<Advertisment>();
         
         try
         {
@@ -508,12 +509,12 @@ public class Window
 		
 		try
 		{
-	        ArrayList<Offer> myArrayList = new ArrayList<Offer>();
+	        List<Offer> myArrayList = new ArrayList<Offer>();
 	        myArrayList = mainController.getUserPropositions();
 	        
 	        for ( Offer propositionTmp : myArrayList )
 	        {
-	        	System.out.println("- You made a proposition for the advertisment : "+propositionTmp.getIdAdvertisment()+" at the price of : "+propositionTmp.getNewPrice()+"$ ("+propositionTmp.getIdOffer()+")");;
+	        	System.out.println("- You made a proposition for the advertisment : "+propositionTmp.getAdv().getIdAdvertisment()+" at the price of : "+propositionTmp.getNewPrice()+"$ ("+propositionTmp.getIdOffer()+")");;
 	        }
 	        System.out.println("----------------------------------------------------------------------");
 		}
@@ -571,14 +572,14 @@ public class Window
 			System.out.println("2 - Refuse an offer");
 			System.out.println("3 - Return");
 
-	        ArrayList<Offer> myArrayList = new ArrayList<Offer>();
+	        List<Offer> myArrayList = new ArrayList<Offer>();
 	        myArrayList = mainController.getUserReceivedOffer();
 	        
 	        for (Offer receivedOffer : myArrayList)
 	        {
-	        	User buyer = new User();
-	        	buyer.setIdUser(receivedOffer.getIdBuyer());
-	        	System.out.println("- You received an offer from : "+mainController.getMyUserDAO().getUserName(buyer)+" on the advertisment : "+receivedOffer.getIdAdvertisment()+" at the price of : "+receivedOffer.getNewPrice()+"$"
+	        	System.out.println("- You received an offer from : "+mainController.getMyUserDAO().getUserById(receivedOffer.getBuyer().getIdUser())
+	        			+ " on the advertisment : "+receivedOffer.getAdv().getIdAdvertisment()
+	        			+ " at the price of : "+receivedOffer.getNewPrice()+"$"
 	        			+ " ("+receivedOffer.getIdOffer()+") ");
 	        }
 	        
