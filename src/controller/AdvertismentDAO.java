@@ -40,9 +40,10 @@ public class AdvertismentDAO
 		try
 		{
 			em.getTransaction().begin();
-			em.persist(ad);
+			Advertisment mergedAdv = em.merge(ad);
+			em.persist(mergedAdv);
 			em.getTransaction().commit();
-			
+
 			return true;
 		}
 		catch (PersistenceException e)
@@ -72,7 +73,7 @@ public class AdvertismentDAO
 			query.setParameter(1, mergedAdv.getIdAdvertisment());
 			query.executeUpdate();
 			em.getTransaction().commit();
-			
+		
 			return true;
 		}
 		catch (PersistenceException e)

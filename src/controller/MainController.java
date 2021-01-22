@@ -85,7 +85,7 @@ public class MainController
 			myUserTmp.setUsername(username);
 			myUserTmp.setPassword(password);
 			myUserTmp.setMail(mail);
-			
+			System.out.println("DANS CREATE");
 			if(myUserDAO.insertUser(myUserTmp) == true)
 			{
 				System.out.println("User successfully created");
@@ -98,6 +98,14 @@ public class MainController
 			return false;
 	}
 
+
+	public boolean disconnect()
+	{
+		myUser.setConnected(false);
+		myUser.getListAdvertisment().clear();
+		myUser.getListProposition().clear();
+		return true;
+	}
 	
 	/**
 	 * Creates and adds an advertisment on the website, the owner is the user calling the method
@@ -130,7 +138,7 @@ public class MainController
 		
 		myUser.addAdvertisment(myAdvTmp);
 		myAdvTmp.setOwner(myUser);
-		
+		//return true;
 		if(myAdvDAO.insertAd(myAdvTmp) == true)
 			return true;
 		else

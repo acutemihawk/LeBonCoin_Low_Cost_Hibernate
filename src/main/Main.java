@@ -40,27 +40,33 @@ public class Main
 		
 
 		System.out.println(m.addUserAdvertisment("blab", "blab", 50,"blab", "blab"));
-		//System.out.println(m.getMyUser().getListAdvertisment().get(0).getIdAdvertisment());
-
-		/*
 		System.out.println("APRES");
-		m.createAccount("kaaris", "test", "mahoufal@gmail.com");*/
-		//System.out.println(m.userConnect("kaaris", "test"));
+		m.disconnect();
+		
+		m.createAccount("kaaris", "test", "mahoufal@gmail.com");
+		System.out.println(m.userConnect("kaaris", "test"));
+		System.out.println("HIHIHI");
 		System.out.println(m.getMyUser().getIdUser());
 		System.out.println(m.getMyUser().getMail());
 		System.out.println(m.getMyUser().getPassword());
 		System.out.println(m.getMyUser().getListAdvertisment());
 		System.out.println(m.getMyUser().getListProposition());
+		//System.out.println(m.getMyUser().getListAdvertisment().get(0).getIdAdvertisment());
+
+
+
+		//
+
 		
 
 
 		/*
 		System.out.println(m.delUserAdvertisment(2));
 		System.out.println(m.getMyUser().getListAdvertisment());*/
-		
-		System.out.println(m.addUserProposition(2, 50));
-		System.out.println(m.addUserProposition(2, 700));
-		System.out.println(m.addUserProposition(2, 900));
+
+		m.addUserProposition(2, 50);
+		m.addUserProposition(2, 700);
+		m.addUserProposition(2, 900);
 		System.out.println(m.getMyUser().getListProposition());
 
 		
@@ -68,7 +74,7 @@ public class Main
 		
 		//System.out.println(m.acceptOffer(4));
 		
-		System.out.println(m.refuseOffer(4));
+		//System.out.println(m.refuseOffer(4));
 		
 	/*	Advertisment a = new Advertisment();
 		Advertisment b = new Advertisment();

@@ -104,9 +104,12 @@ public class UserDAO
 	{
 		try
 		{
-			System.out.println("OZOOZOZOZOZOZO");
 			em.getTransaction().begin();
+			System.out.println("avant persist");
+
 			em.persist(userToCreate);
+			System.out.println("apres persist");
+
 			em.getTransaction().commit();
 			return true;
 		}
